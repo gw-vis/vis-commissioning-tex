@@ -1,0 +1,100 @@
+\section{Introduction}
+
+\subsection{About this document}
+This is a document with suspension commissioning tasks described in detail, as in mathematical/theoretical/code/ procedure details.
+We sincerely hope that this document can serve as a handbook/guideline for suspension commissioning, and as an educational document for people, who want/need to participate in suspension commission activities, to know more about the activities.
+
+This document is dynamic, and it should be, as we get input and suggestions from people, and as technology evolves.
+With that said, if you have an opinion on particular tasks or methods described in this document or suspension commissioning in general, feel free to submit an issue \href{https://github.com/gw-vis/vis-commissioning-tex/issues}{here}.
+Alternatively, you can contact the maintainer (Terrence for now) via any communication channels (emails, slack, whatever).
+We will update the document accordingly.
+
+As we all know, people have taken different approaches for suspensions commissioning in the past.
+And, there were not enough communications between subgroups/people on how suspensions should be configured.
+With this repository, we hope to create an open environment for people to exchange ideas regarding suspension commissioning.
+And, we wish the document to be filled with ideas and methods that we all agree on, so all of us will commit to follow this document when participating commissioning activities.
+
+
+\subsection{Suspension commissioning as a stepping stone}
+Suspension commissioning is about a series of tasks that get us from hardware installation/upgrade to interferometer commissioning.
+In other words, we do whatever is necessary to the suspensions into a state where interferometer commissioners can ``use'' the suspensions to do interferometer alignment and locking, without tweaking the internals of the suspension systems.
+With that said, we should have certain expectation on the initial state of the suspension (as hardware teams handover the suspensions to us), and interferometer commissioning team should expect something from us.
+So, this document is about defining those expectations and how do we achieve them.
+
+\subsubsection{Hardware expectations}
+Before we start working on anything, the suspensions have to be ready for commissioning.
+That is, we shouldn't be tweaking the hardware of the suspensions
+All tasks that needed to be done at the hardware level, is by definition, not our tasks.
+We should expect the suspensions to be ``healthy'', as in, the dynamics of the suspensions are exactly what one would expect, and the sensors and actuators should be fully functional and calibrated.
+At the end of the hardware installation process, there's an acceptance test, which every suspension should pass.
+This should, in principle, make sure that the suspensions are ``ready''.
+But, if we observe anything out of the normal, we should check the system's vitals and explain what's wrong to hardware experts.
+
+There are many ways that hardware fault can leave you head-scratching for a long period of time.
+And, sometimes they can be hard to catch, especially when there's no testing pipeline in KAGRA.
+I learnt this from painful experience.
+I was asked to work on the optical lever on the signal recycling mirror (SR) suspensions.
+In particular, I was working on something we called ``diagonalization'' where we align the sensor signals to some desirable basis.
+I worked out the math but I can't seem to get the signals decoupled, regardless of the fact that the same method worked for other optical lever.
+At the end, we discovered that one sensor (QPD segment) has a higher gain than the others and that was simple a hardware fault that has haunted me and the Type-B team for months \cite{SR2_oplev_diagonalization, Comment_SR2_oplev}.
+Also, there's nothing that prevents the suspensions to go "unhealthy" even if it was perfectly fine.
+Systems can degrade and degradation can happen.
+For example, one of the PRM magnet came off during commissioning \cite{PRM_magnet_came_off, MICH_got_locked}.
+Fortunately, commissioners were able to pin point the source of error and asked the vibration isolation system (VIS) team to check it.
+The lesson learnt here, is that, we shouldn't trust what was given to us, even if the suspensions were given to us by Albert Einstein himself.
+People make mistakes, and there's no exception.
+We are scientist, and we need to be skeptical\footnote{If there's anything I (Terrence) learnt from Rana, it's this.}.
+So, think carefully if any abnormality is due to hardware fault.
+And, do consult hardware experts and demand a hardware fix when you got stuck.
+
+Here is a non-exhaustive list of problems that I can think of\footnote{Please submit an issue if you can think of more that are worth mentioning.}, that can only be fixed at a hardware level, but can limit the outcome of suspension commissioning, and demand fixes:
+\begin{itemize}
+	\item Suspension in contact with components near it (e.g. Touching a cable). This will usually result in a very low Q-factor in certain vibration modes.
+	\item Sensor not within good operation range. This will pose a limit in the amount of actuation during feedback control. This can also result in wrong sensors/actuator diagonalization. And, this can lead to higher sensor noise.
+	\item Stepper motors stuck. Static load on actuators cannot be offloaded to stepper motors and hence limiting the actuation force during feedback control.
+	\item Suspension cannot be moved in full range (e.g. the BF stage of the SRM [cite fabian]).
+	\item Abnormal coupling (e.g. Same signal but with phase difference as reported in \cite{prequa}).
+	\item Very different coil actuation efficiency, indicating a non-functional actuator.
+\end{itemize}
+Fixing these problems are not within the scope of suspension commissioning.
+We are suppose to work with a healthy system so we get maximum potential out of the hardware.
+We should ask for a fix, before proceeding.
+If it can't be fixed, we should discuss possible limitations and possible workarounds together.
+
+\subsubsection{What should interferometer commissioner expect?}
+We cannot guarantee that the outcome of suspension commission are exactly needed for interferometer commissioning.
+There are few reasons:
+1) There are too many uncertainties.
+2) Various topics regarding the suspensions are not well-studied, and are still being researched.
+3) There are some performances that cannot be confirmed until we have the interferometers.
+And most importantly, 4) We don't exactly know what realistically interferometer commissioning needs, except we only refer to theoretical studies like Sekiguchi's thesis \cite{Sekiguchi:2016bmv}, which can be outdated and not really aligned with the real deal here in KAGRA.
+Therefore, regarding the last point, we strongly encourage interferometer commissioners to cooperate by sharing information and suggestions.
+
+In particular, these information will be very useful:
+\begin{itemize}
+	\item What is the realistic displacement level requirement, in RMS and peak, for the optics?
+	\item At what optics displacement level did you observe lock-loss?
+	\item At what seismic noise level did lock-loss occur?
+	\item Is lock-loss correlated with the seismic noise level?
+	\item How would you like to control the suspensions?
+	\item What are the entry points? Do you want to control the suspensions directly from the setpoints? Or do you want to control the suspension using directly from the actuation signals?
+	\item Why did you run into actuation saturation? Do you want the signals to be offloaded to higher stages, like the preisolator?
+	\item What are some problematic cross-coupling (e.g. length-to-pitch), and in what condition you would like them to be decoupled?
+\end{itemize}
+
+While we cannot provide any guarantee, we can and should provide warranty.
+If the suspensions are failing, it is suspensions commissioners' job to fix or improve it.
+Interferometer commissioners should \textbf{not} be tackling suspension tasks like, internal damping of the resonances, sensors decoupling, or seismic noise attenuation.
+And, interferometer commissioners should expect the suspensions to behave like a blackbox (as you don't need to know what's happening internally), and as some sort of servo (as it steers the optics).
+If the suspensions become problematic and is hindering interferometer commissioning, interferometer commissioners should work with suspension commissioners to tackle the problem.
+Previously, such kind of interface was clearly lacking\footnote{As Nakano-san is a superman who tackles every problem on his own.} and we hope this can be improved in the future.
+We need good communication for KAGRA to work.
+So, here we should say that suspension commissioning is not a ``once done and for all'' process.
+Instead, it is something that should be recursively done, as we get ``complaints'' from interferometer commissioners during interferometer commissioning.
+
+
+\subsection{Goal}
+
+
+
+
