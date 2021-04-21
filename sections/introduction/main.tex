@@ -52,7 +52,7 @@ Here is a non-exhaustive list of problems that I can think of\footnote{Please su
 	\item Suspension in contact with components near it (e.g. Touching a cable). This will usually result in a very low Q-factor in certain vibration modes.
 	\item Sensor not within good operation range. This will pose a limit in the amount of actuation during feedback control. This can also result in wrong sensors/actuator diagonalization. And, this can lead to higher sensor noise.
 	\item Stepper motors stuck. Static load on actuators cannot be offloaded to stepper motors and hence limiting the actuation force during feedback control.
-	\item Suspension cannot be moved in full range (e.g. the BF stage of the SRM [cite fabian]).
+	\item Suspension cannot be moved in full range (e.g. the BF stage of the SRM \cite{SRM_work}).
 	\item Abnormal coupling (e.g. Same signal but with phase difference as reported in \cite{prequa}).
 	\item Very different coil actuation efficiency, indicating a non-functional actuator.
 \end{itemize}
@@ -61,13 +61,13 @@ We are suppose to work with a healthy system so we get maximum potential out of 
 We should ask for a fix, before proceeding.
 If it can't be fixed, we should discuss possible limitations and possible workarounds together.
 
-\subsubsection{What should interferometer commissioner expect?}
+\subsubsection{What should interferometer commissioners expect?}
 We cannot guarantee that the outcome of suspension commission are exactly needed for interferometer commissioning.
 There are few reasons:
 1) There are too many uncertainties.
 2) Various topics regarding the suspensions are not well-studied, and are still being researched.
 3) There are some performances that cannot be confirmed until we have the interferometers.
-And most importantly, 4) We don't exactly know what realistically interferometer commissioning needs, except we only refer to theoretical studies like Sekiguchi's thesis \cite{Sekiguchi:2016bmv}, which can be outdated and not really aligned with the real deal here in KAGRA.
+And most importantly, 4) We don't exactly know what realistically interferometer commissioning needs, except we can only refer to theoretical studies like \cite{Sekiguchi:2016bmv}, which can be outdated and not really aligned with the real deal here in KAGRA.
 Therefore, regarding the last point, we strongly encourage interferometer commissioners to cooperate by sharing information and suggestions.
 
 In particular, these information will be very useful:
@@ -79,21 +79,108 @@ In particular, these information will be very useful:
 	\item How would you like to control the suspensions?
 	\item What are the entry points? Do you want to control the suspensions directly from the setpoints? Or do you want to control the suspension using directly from the actuation signals?
 	\item Why did you run into actuation saturation? Do you want the signals to be offloaded to higher stages, like the preisolator?
-	\item What are some problematic cross-coupling (e.g. length-to-pitch), and in what condition you would like them to be decoupled?
+	\item What are some problematic cross-couplings (e.g. length-to-pitch), and in what condition you would like them to be decoupled?
 \end{itemize}
 
 While we cannot provide any guarantee, we can and should provide warranty.
-If the suspensions are failing, it is suspensions commissioners' job to fix or improve it.
+If the suspensions are failing, it is suspension commissioners' job to fix or improve it.
 Interferometer commissioners should \textbf{not} be tackling suspension tasks like, internal damping of the resonances, sensors decoupling, or seismic noise attenuation.
 And, interferometer commissioners should expect the suspensions to behave like a blackbox (as you don't need to know what's happening internally), and as some sort of servo (as it steers the optics).
 If the suspensions become problematic and is hindering interferometer commissioning, interferometer commissioners should work with suspension commissioners to tackle the problem.
 Previously, such kind of interface was clearly lacking\footnote{As Nakano-san is a superman who tackles every problem on his own.} and we hope this can be improved in the future.
 We need good communication for KAGRA to work.
-So, here we should say that suspension commissioning is not a ``once done and for all'' process.
+So, here we should say that \textbf{suspension commissioning is not a ``once done and for all'' process}.
 Instead, it is something that should be recursively done, as we get ``complaints'' from interferometer commissioners during interferometer commissioning.
 
 
 \subsection{Goal}
+Qualitatively speaking, the goal of suspension commissioning is simply to bring the suspensions into a state where interferometer commissioners can use the suspensions, via defined entry points, to steer the mirrors and make an interferometer, which is sensitive enough to be a gravitational wave detectors.
+Althrough, as mentioned, there's no realistic requirements, which are derived from previous experience, we adopt theoretical requirements derived from \cite{Sekiguchi:2016bmv}. In particular, in order for KAGRA to function as an gravitational wave detector, the suspensions have to satisfied 2 types of requirements, displacement noise requirement, residual motion requirement.
+In this section, we will briefly discuss the requirements, but will not go into the details, as this is not the scope of this document.
+Readers are recommended to refer to the external references cited.
+
+\subsubsection{Displacement noise requirement}
+Ground-based gravitational wave detectors have a detection band starting from $10~\mathrm{Hz}$.
+The detectable effect of gravitational waves comes in the form of strain, which loosely speaking, is the fractional change in length.
+To detect gravitational waves, we simply use an L-shape interferometer and measure the change in the arm lengths in two directions.
+We expect targeted gravitational waves to have a peak amplitude of $10^{-21}$.
+While the arm lengths of the interferometer are in the order of $10^{3}~\mathrm{m}$, the change in arm lengths caused by targeted gravitational wave is expected to be in the order of $10^{-21}\times 10^{3}~\mathrm{m}=10^{-18}~\mathrm{m}$, which is a very tiny amount of displacement.
+Effectively, this means that the test masses (TM), i.e. the end mirrors, must have a displacement level lower than that.
+Giving a safety factor of $10$, i.e. signal-to-noise ratio of around 100, this converts a displacement noise requirement of $10^{-19}~\mathrm{m}$ at $10~\mathrm{Hz}$, roughly speaking. Figure.~\ref{fig:displacementnoiserequirement} shows the displacement noise requirement of the optics including the test mass (TM), beamsplitter (BS), signal recycling mirror (SRM), and power recycling mirror (PRM) above $10~\mathrm{Hz}$.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figures/displacement_noise_requirement}
+	\caption{Displacement noise requirements of the test mass (TM) (black), beamsplitter (BS) (green), signal recycling mirror (SRM) (red), and power recycling mirror (PRM) (blue), under boardband resonant sideband extraction configuration (BRSE) (Left) and detuned resonant sideband extraction scheme (DRSE) (Right). Retrieved from \cite{Sekiguchi:2016bmv}.}
+	\label{fig:displacementnoiserequirement}
+\end{figure}
+As can be seen, the requirements of optics other than the TMs are much lower.
+The displacement noise level of the BS and the SRM is at $10^{-17}~\mathrm{m}$, while that of the PRM is at $10^{-15}~\mathrm{m}$.
+Table~.\ref{table:displacement_noise_requirement} summarizes the displacement noise of various optics at $10~\mathrm{Hz}$.
+Therefore, the partial goal of suspension commissioning is to make sure these displacement noise levels requirement are met.
+\begin{table}[!h]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		& Displacement level ($\mathrm{m}/\sqrt{\mathrm{Hz}}$)\\
+		\hline
+		TM &  $1\times 10^{-19}$\\
+		\hline
+		BS &  $1\times 10^{-17}$\\
+		\hline
+		PRM & $2\times 10^{-15}$\\
+		\hline
+		PR2, PR3 & $1\times 10^{-15}$\\
+		\hline
+		SRM & $1\times 10^{-17}$\\
+		\hline
+		SR2, SR3 & $5\times 10^{-18}$\\
+		\hline
+	\end{tabular}
+	\caption{Summary of longitudinal displacement noise level of the optics including the folder mirrors of the recycling cavity (PR2, PR3, SR2, SR3). Retrieved from \cite{Sekiguchi:2016bmv}.}
+	\label{table:displacement_noise_requirement}
+\end{table}
+The suspensions of the optics are designed specifically to attenuate the seismic noise at $10~\mathrm{Hz}$ to the displacement level specified in table.~\ref{table:displacement_noise_requirement} via passive isolation.
+Therefore, the suspensions intrinsically satisfied these requirements already without any tweaking.
+However, the main concern here is not about passive isolation.
+Instead, it's about active isolation/feedback control, as we need to keep the control noise below these displacement level, while maintaining certain disturbance rejection capability.
+This brings us to the other requirement: residual motion.
+
+\subsubsection{Residual motion requirement}
+In previous section, we discussed what are the requirements for KAGRA to be sensitive enough to become a gravitational wave detector.
+Here, we will discuss the requirements for KAGRA to be an interferometric gravitational wave detector.
+Again, here we only briefly mention the rationale behind such requirements and readers are strongly recommended to read \cite{Sekiguchi:2016bmv} for detailed explanations.
+
+In order for KAGRA to become an interferometric gravitational wave detector, the main optics must be manipulated to form various optical cavities, where feedback control is used to ``lock'' two mirrors at relatively stable separations.
+The technique used is called Pound-Drever-Hall (PDH) technique \cite{doi:10.1119/1.1286663}.
+To use this technique, the separation between two optics stay within the operating range where the control signal for using PDH technique becomes linear.
+In \cite{Sekiguchi:2016bmv}, a velocity requirement of the is derived by considering the maximum actuation power of the TM coils.
+Consider a case where the optics are moving towards the operating range.
+As the optics enter the range, the actuators applies maximum force on the optics, causing the optics to decelerate maximally.
+If the optics are put to halt before they exit the operating range, then lock-acquisition is achieved.
+This only happens when the velocity of the optics is lower than a certain threshold, which we define as a requirement.
+The velocity requirements the main optics are derived in \cite{Sekiguchi:2016bmv} and is summarized in table.~\ref{table:velocity_requirement}.
+\begin{table}[!h]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		& Velocity requirement (RMS) ($\mu\mathrm{m}/\mathrm{s}$)\\
+		\hline
+		TM, BS, SR &  $0.5$\\
+		\hline
+		PR &  $2$\\
+		\hline
+	\end{tabular}
+	\caption{Summary of main optics' velocity requirement}
+	\label{table:velocity_requirement}
+\end{table}
+
+
+
+
+
+
+
+
 
 
 

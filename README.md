@@ -1,6 +1,11 @@
 # vis-commissioning-tex
 VIS commissioning handbook
 
+The most updated version of the PDF can be viewed [here](https://github.com/gw-vis/vis-commissioning-tex/blob/main/main.pdf).
+Hosting PDF files on Github can be troublesome at times (difficult to merge).
+We might consider removing this file from the repository later.
+Please use the JGWDoc link below to get the PDF from JGWDoc server.
+
 This is a document with suspension commissioning tasks described in detail, as in, mathematical/theoretical/code/procedure details.
 We sincerely hope that this document can serve as a handbook/guideline for suspension commissioning, and as an educational document for people,
 who want/need to participate in suspension commission activities, to know more about the activities.
