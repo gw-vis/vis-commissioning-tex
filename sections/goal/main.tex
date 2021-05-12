@@ -4,7 +4,7 @@ Althrough, as mentioned, there's no realistic requirements, which are derived fr
 In this section, we will briefly discuss the requirements, but will not go into the details, as this is not the scope of this document.
 Readers are recommended to refer to the external references cited.
 
-\subsection{Displacement noise requirement}
+\subsection{Displacement noise requirement \label{sec:displacement_noise_requirement}}
 Ground-based gravitational wave detectors have a detection band starting from $10~\mathrm{Hz}$.
 The detectable effect of gravitational waves comes in the form of strain, which loosely speaking, is the fractional change in length.
 To detect gravitational waves, we simply use an L-shape interferometer and measure the change in the arm lengths in two directions.
@@ -50,7 +50,7 @@ However, the main concern here is not about passive isolation.
 Instead, it's about active isolation/feedback control, as we need to keep the control noise below these displacement level, while maintaining certain disturbance rejection capability.
 This brings us to the other requirement: residual motion.
 
-\subsection{Residual motion requirement}
+\subsection{Residual motion requirement \label{sec:residual_motion_requirement}}
 In previous section, we discussed what are the requirements for KAGRA to be sensitive enough to become a gravitational wave detector.
 Here, we will discuss the requirements for KAGRA to be an interferometric gravitational wave detector.
 In particular, we will discuss velocity, angular fluctuation, and displacement level requirement.
@@ -173,4 +173,39 @@ To this end, as we shall see in later sections [ref later sections], we purpose 
 Guardian is an automation system used in advanced LIGO (aLIGO) \cite{advanced_ligo_guardian}.
 It's a platform where operators can program, using Python, certain operations that takes the suspensions from one defined states to another via certain defined paths.
 The details of Guardian will not be discussed here, readers are strongly recommended to read the ``living'' document from aLIGO \cite{advanced_ligo_guardian}.
-We will only briefly 
+We will only briefly introduce what we're trying to achieve with Guardian and what people should expect.
+Here, we will relay information given in \cite{suspension_commissioning, all_of_the_vibration}.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figures/guardian}
+	\caption{State-transition diagram of the (proposed?) VIS Guardian. Retrieved from \cite{all_of_the_vibration}}
+	\label{fig:guardian}
+\end{figure}
+Fig.~\ref{fig:guardian} shows the (proposed?) state-transition diagram of the VIS Guardian.
+As can be seen, there are 9 Guardian states, namely TRIPPED, MANUAL, SAFE, ISOLATED, DAMPED, MISALIGNED, ALIGNED, FLOATED, and LOWNOISE.
+Here, description in \cite{all_of_the_vibration} is lacking so we will be further elaborating the behavior of these states.
+
+In the TRIPPED state, as is indicated by the name of the state, the suspension is tripped.
+This is triggered by a builtin watchdog system in the real-time model that monitors for abnormal behaviors.
+The suspension can ``jump'' (In Guardian language) into this state from every other state.
+This happens when the watchdog's tripped.
+
+In for the MANUAL state, not sure what that means.
+But my guess is that this is a state with the master switch turned on, so actuation signals can go through for measurement and diagnostic purposes.
+
+In the SAFE state, actuation signals cannot go to the actuators, essentially immobilizing the suspension.
+
+In the ISOLATED state, active isolation, usually at the stage closest to the ground (likely preisolator/inverted pendulum), is engaged.
+The controls systems are engaged such that two things are achieved: 1) Coarsest alignment with integration action, and 2) Seismic noise suppression.
+The controls at the higher stage will bring lower stages into operating point (e.g.centering the optical levers), but will perturb lower stage resonances via control noise injection.
+
+In the DAMPED state, controls at the lower stages will be engage to suppress the these resonances.
+At this point, the suspension should be able to satisfy the residual motion requirements as stated in Sec.~\ref{sec:residual_motion_requirement}.
+
+In the ALIGNED state, the optics is steered to be coarsely aligned and is ready to be handed over to inferometer control.
+Distinct from the ALIGN state, In the MISALIGN state, the optics is steered away from the aligned position.
+
+At last, at the LOWNOISE state, controls that may compromise the detector sensitivity will be shut off or replaced by a lower noise version.
+At this point, the suspension should satisfy the displacement noise requirements as stated in Sec.~\ref{sec:displacement_noise_requirement}.
+
+
