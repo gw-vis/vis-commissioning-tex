@@ -7,7 +7,7 @@ There's no best method.
 And, we should emphasize that it's not important to use the same methods for all suspensions, but rather, to evaluate all suspensions using the same evaluation methods.
 As long as we have a consistent evaluation scheme that ensures the requirements are met, that's it needs for KAGRA to work.
 
-\subsection{List of tasks}
+\subsection{List of tasks \label{sec:list_of_tasks}}
 We will provide a list of tasks here in this section.
 Further elaboration will be provided in the next.
 These tasks are defined with the assumption that we have healthy hardware and we have sensors (and actuators) calibrated, and they are listed in order.
@@ -45,58 +45,86 @@ These tasks are defined with the assumption that we have healthy hardware and we
 		\item Repeat step \ref{item:design_control_filter} until all local control-loops at all stages are closed.
 	\end{enumerate}
 	\item Measure the residual motion using the sensors at the optics stage as an out-of-loop sensor (Do not engage the control-loops that use the optics' sensors). If this fails, find the problematic stage and redo all controllers starting from there.
-	\item (If there exists an interferometer) Measure actuation to DARM transfer function and measure the displacement noise. If this fails, find the problematic stage and redo all controllers starting from there.
+	\item (If there exists an interferometer) Measure actuation to differential arm length control signal (DARM) transfer function and measure the displacement noise. If this fails, find the problematic stage and redo all controllers starting from there.
 \end{enumerate}
 
 \subsection{Further elaboration}
-In order to achieve the displacement noise and residual motion requirements, as stated in Sec.~\ref{sec:displacement_noise_requirement} and Sec.~\ref{sec:residual_motion_requirement} respectively, we need to rely on a so-called control system.
-Here we assume readers have basic understanding on control systems and are comfortable at working with frequency/Laplace domain quantities.
-If not, please refer to introductory textbooks such as \cite{modern_control_engineering} and \cite{control_engineering}.
+In this section we will discuss why do we need to complete the tasks as stated in Sec.~\ref{sec:list_of_tasks} and why are they listed in that order.
+We will be discussing in the language of control theory.
+If you're not familiar with the topic, please refer to introductory textbooks such as \cite{modern_control_engineering} and \cite{control_engineering}.
 
-A suspension has a lot of degrees of freedom (DoFs).
-KAGRA's control topology requires each DoF to be independent from each other.
-Therefore each DoF can be thought as a single-input-single-output (SISO) system as shown in Fig.~\ref{fig:generalcontrolblockdiagram}.
+Consider the control diagram as shown in Fig.~\ref{fig:generalcontrolblockdiagram}.
+$R(s)$, $D(s)$, and $N(s)$ are the external inputs, and they are the setpoint, disturbance, and noise respectively.
+$R(s)$ is usually a DC setpoint purposed for coarse alignment.
+It has no non-zero frequency content so we'll just mention its existence here and will drop it in further discussions.
+$D(s)$ can be any arbitrary disturbance to that particular degree of freedom, that directly goes to the output $X(s)$
+It can be thought as the output $X(s)$ when there's no actuation, and can be defined as
+\begin{equation}
+	D(s) \equiv \lim_{K(s)\to 0} X\mleft(s;K(s)\mright)
+\end{equation}
+$X(s)$ is the output and can be thought as the actual displacement, not measured, of the DoF we aimed to control.
+This can be any of the arbitrary displacement at any stage of the suspension.
+$N(s)$ is the sensing noise, not exactly the sensor's intrinsic noise, but is defined as
+\begin{equation}
+	N(s) \equiv \lim_{K(s)\to\infty} X(s;K(s))
+\end{equation}
+$U(s)$ is the actuation signal.
+$P(s)$ is the actuation transfer function of this particular degree of freedom, and is defined as
+\begin{equation}
+	P(s) \equiv \frac{X(s)}{U(s)}
+\end{equation}
+At this point it because tedious to specify everything as a function of $s$, so will simply omit to write the $s$ dependencies and assume all variables with capital letters are all functions of $s$ unless otherwise specified.
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width=75mm]{figures/general_control_block_diagram}
 	\caption{Typical control block diagram of a single degree of freedom. $R(s)$: reference/setpoint, $D(s)$: external disturbance, $X(s)$: displacement, $N(s)$ sensing noise, $K(s)$: controller, $P(s)$: actuation transfer function.}
 	\label{fig:generalcontrolblockdiagram}
 \end{figure}
-Now, we shall omit writing the bracket and assign capital letters to frequency/Laplace domain quantities and lower case letters for others.
-Here, we define arbitrary functions $F(s)$ to be the Laplace transform of $f(t)$, where $s=\sigma+i\omega$ a complex number.
-Typically, we analysis the functions by evaluating $s$ along the imaginary axis, i.e. frequency axis, so the functions we study here is closely related to the Fourier transform, and hence the amplitude spectral density, as we shall see later.
-In Fig.~\ref{fig:generalcontrolblockdiagram}, $R$ is the setpoint, which is usually a static input at DC for coarse alignment purpose.
-For most purposes in KAGRA's suspension, $R$ is considered to be $0$ at non-zero frequencies and therefore we will just mention it's existence but will not further discuss.
-In the figure, $D$ is the external disturbance, that is, the open-loop spectrum of the displacement $X$\footnote{For a multiple stage suspension, $D$ is the displacement excited by motion at a higher stage.}.
-$N$ is sensing noise, not sensor noise (we will properly define the meaning of $N$ later).
-$K$ is the control filter, which is the filter that we need to design, and $P$ is the actuation transfer function of the suspension, which we need to model.
 
-Here, the displacement reads
+As shown in Fig.~\ref{fig:displacementtooptics}, there exists paths $P_\mathrm{X\to X_\mathrm{TM}}$, such that the displacement at any stage is transferred to the optics displacement $X_\mathrm{TM}$.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=41mm]{figures/displacement_to_optics}
+	\caption{Displacement to optics' displacement path}
+	\label{fig:displacementtooptics}
+\end{figure}
+In reality, since there are many DoFs, there exists many paths like Fig.~\ref{fig:displacementtooptics}.
+Hence, without the optics local control, the amplitude spectral density of the optics displacement $\hat{X}_\mathrm{TM}(f)$ is a quadrature sum of all these contribution, i.e.
 \begin{equation}
-	X=\frac{1}{1+KP}\ D + \frac{KP}{1+KP}\ N.
-	\label{eqn:X}
+	\hat{X}_\mathrm{TM}(f)=\left[\sum_i\left\lvert P_{X_i\to X_\mathrm{TM}}\right\rvert^2 \hat{X}_i(f)^2\right]^{\frac{1}{2}},
+	\label{eqn:x_tm_asd}
 \end{equation}
-From here, we shall define the proper definition of $N$ to be the limit of the displacement $X$ as the controller gain $K$ goes to infinity,
-\begin{equation}
-	N = \lim_{K\to\infty} X(K).
-\end{equation}
-So, it's not necessary sensor noise, but any residual signals present in the sensing readout\footnote{For example, the relative displacement sensors (LVDTs) at the preisolator of the Type-A and Type-B suspensions is coupled to ground motion, so the total sensing noise is a combination of the LVDT's intrinsic noise and seismic noise.}.
-Continuing from Eqn.~\eqref{eqn:X}, the amplitude spectral density of $X$ is given by the quadrature sum of the filtered disturbance and sensing noise, i.e.
-\begin{equation}
-	X_\mathrm{ASD}(f) = \left[\left\lvert\frac{1}{1+KP}\right\rvert^2 D_\mathrm{ASD}^2(f) + \left\lvert\frac{KP}{1+KP}\right\rvert^2 N_\mathrm{ASD}^2(f)\right]^{\frac{1}{2}}.
-\end{equation}
-This is the quantity that we're interested in.
-If this is the displacement of an upper stage, then we can estimate the displacement at the optics (TM) by
-\begin{equation}
-	X_\mathrm{ASD, TM}(f) = \left\lvert P_{X\to X_\mathrm{TM}}\right\rvert X_\mathrm{ASD}(f),
-	\label{eqn:x_asd_tm}
-\end{equation}
-where $X_\mathrm{ASD, TM}(f)$ is the amplitude spectral density of the optics displacement $X_\mathrm{TM}$ and $P_{X\to X_\mathrm{TM}}$ is the transfer function from the displacement $X$ to the optics displacement $X_\mathrm{TM}$.
+where $X_i$ is the displacement of the $i^\mathrm{th}$ DoF, $\hat{X}_i(f)$ is the amplitude spectral density of $X_i$ and $P_{X_i\to X_\mathrm{TM}}$ the transfer function from $X_i$ the optics displacement $X_\mathrm{TM}$.
 
-Once we can estimate the amplitude spectral density of the optics using Eqn.~\eqref{eqn:x_asd_tm}, we can tune 
+Now, individual contributions from different displacements in Eqn.~\eqref{eqn:x_tm_asd} can vary by orders of magnitude, and so they are often viewed in logarithmic scale.
+And because of this, the Eqn.~\eqref{eqn:x_tm_asd} can be approximated as
+\begin{equation}
+	\hat{X}_\mathrm{TM}(f) \approx \max_i \left(\left\lvert P_{X_i\to X_\mathrm{TM}} \right\rvert \hat{X}_i(f)\right).
+\end{equation}
+With this in mind, the strategy is simple.
+We need to make sure that the displacement of the optics can satisfy the displacement requirements and residual motion requirements stated in Sec.~\ref{sec:displacement_noise_requirement} and Sec.~\ref{sec:residual_motion_requirement}.
+So, for each stage and each DoF, we estimate individual $\left\lvert P_{X_i\to X_\mathrm{TM}}\right\rvert \hat{X}_i(f)$ and make sure that they satisfy the requirements instead.
+To estimate this, let's refer back to Fig.~\ref{fig:generalcontrolblockdiagram}.
+The displacement $X$ in the closed-loop configuration reads
+\begin{equation}
+	X = \frac{1}{1+KP}\ D + \frac{KP}{1+KP}\ N,
+\end{equation}
+and the amplitude spectral density reads
+\begin{equation}
+	\hat{X}(f) = \left[\left\lvert\frac{1}{1+KP}\right\rvert^2\hat{D}(f)^2 + \left\lvert\frac{KP}{1+KP}\right\rvert^2\hat{N}(f)^2\right]^\frac{1}{2}.
+\end{equation}
+If we know the the amplitude spectral densities $\hat{D}(f)$ and $\hat{N}(f)$, and the plant $P$, we can estimate the amplitude spectral density $\hat{X}(f)$ when designing the controller $K$.
+If we know $\hat{X}(f)$ and $P_{X\to X_\mathrm{TM}}$, then we can estimate $\left\lvert P_{X\to X_\mathrm{TM}}\right\rvert \hat{X}(f)$, i.e. the displacement level of the optics due to displacement $X$.
+Then, we can tune $K$ such that $\left\lvert P_{X\to X_\mathrm{TM}}\right\rvert \hat{X}(f)$ satisfies the requirements.
+This is how we can design the controllers such such that the requirements are met.
 
-\subsection{Control system preparatory tasks}
-\subsubsection{Control matrices}
-Now, before we can work with control systems, we need 
-\subsection{Control tasks}
+But realisically, we cannot design the controllers in arbitrary order.
+This is because the amplitude spectral density of the disturbance $\hat{D}(f)$ is not easy to estimate.
+In fact, the disturbance at a lower stage depends on the displacement level at a higher stage, which depends on the controller of that higher stage.
+The only disturbance we can estimate is the disturbance at the highest stage, i.e. the preisolator (IP), whose disturbance is closely related to the seismic noise.
+...
+
+
+
+
 
