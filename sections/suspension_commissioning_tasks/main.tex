@@ -64,15 +64,21 @@ It has no non-zero frequency content so we'll just mention its existence here an
 $D(s)$ can be any arbitrary disturbance to that particular degree of freedom, that directly goes to the output $X(s)$
 It can be thought as the output $X(s)$ when there's no actuation, and can be defined as
 \begin{equation}
-	D(s) \equiv \lim_{K(s)\to 0} X\mleft(s;K(s)\mright)
+	D(s) \equiv \lim_{K(s)\to 0} X\mleft(s;K(s)\mright).
+	\label{eqn:d}
 \end{equation}
 $X(s)$ is the output and can be thought as the actual displacement, not measured, of the DoF we aimed to control.
 This can be any of the arbitrary displacement at any stage of the suspension.
 $N(s)$ is the sensing noise, not exactly the sensor's intrinsic noise, but is defined as
 \begin{equation}
-	N(s) \equiv \lim_{K(s)\to\infty} -X(s;K(s))
+	N(s) \equiv \lim_{K(s)\to\infty} -X(s;K(s)).
+	\label{eqn:n}
 \end{equation}
-$U(s)$ is the actuation signal.
+As can be seen from Eqn.~\eqref{eqn:d} and \eqref{eqn:n}, the external disturbance $D(s)$ and sensing noise $N(s)$ can be thought as the limitation of the control performance.
+While $D(s)$ is some random process that we cannot minimize, $N(s)$ can be reduced by methods such as sensor fusion and sensor correction.
+Therefore, it's desirable to complete these additional tasks before proceeding to designing the controllers.
+
+Back to Fig.~\ref{fig:generalcontrolblockdiagram}, $U(s)$ is the actuation signal.
 $P(s)$ is the actuation transfer function of this particular degree of freedom, and is defined as
 \begin{equation}
 	P(s) \equiv \frac{X(s)}{U(s)}
@@ -85,7 +91,7 @@ At this point it because tedious to specify everything as a function of $s$, so 
 	\label{fig:generalcontrolblockdiagram}
 \end{figure}
 
-The first thing we would like to note is that the suspension is not automatically configured in such a way Fig.~\ref{fig:generalcontrolblockdiagram} is valid.
+Here, it's important to note is that the suspension is not automatically configured in such a way Fig.~\ref{fig:generalcontrolblockdiagram} is valid.
 This is because the sensors on a stage are not necessarily aligned to the DoFs that we are interested in.
 The location of the sensors are usually well known.
 With a geometric matric transformation, we will be able to obtain an initial ``map'' or sensing matrix that maps the sensing readouts to the DoFs that we are interested in.
