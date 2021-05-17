@@ -27,7 +27,7 @@ These tasks are defined with the assumption that we have healthy hardware and we
 	\begin{itemize}
 		\item Diagonal actuation TFs in a stage-by-stage basis, \label{item:diagonal_tf}
 		\item (Optional) Cross actuation TFs in a stage-by-stage basis, and \label{item:cross_tf}
-		\item TFs from each displacement to optics/test mass (TM) degrees of freedom. \label{item:displacement_to_optics_tf}
+		\item TFs from each displacement to optics/test mass (TM) degrees of freedom (DoF). \label{item:displacement_to_optics_tf}
 	\end{itemize}
 	\item From the highest stage (closest to the ground) to lowest stage, design the control filter and do the following \label{item:design_control_filter}
 	\begin{enumerate}
@@ -45,6 +45,10 @@ These tasks are defined with the assumption that we have healthy hardware and we
 		\item Repeat step \ref{item:design_control_filter} until all local control-loops at all stages are closed.
 	\end{enumerate}
 	\item Measure the residual motion using the sensors at the optics stage as an out-of-loop sensor (Do not engage the control-loops that use the optics' sensors). If this fails, find the problematic stage and redo all controllers starting from there.
+		\begin{itemize}
+			\item We can measure the spectrum directly, given that the sensors at the optics are not coupled to the ground motion and that the ground motion is close to what we are targeting.
+			\item Alternatively, we can inject a timeseries equivalent to the target seismic noise at the highest stage to simulate the worst-case scenario.
+		\end{itemize}
 	\item (If there exists an interferometer) Measure actuation to differential arm length control signal (DARM) transfer function and measure the displacement noise. If this fails, find the problematic stage and redo all controllers starting from there.
 \end{enumerate}
 
@@ -66,7 +70,7 @@ $X(s)$ is the output and can be thought as the actual displacement, not measured
 This can be any of the arbitrary displacement at any stage of the suspension.
 $N(s)$ is the sensing noise, not exactly the sensor's intrinsic noise, but is defined as
 \begin{equation}
-	N(s) \equiv \lim_{K(s)\to\infty} X(s;K(s))
+	N(s) \equiv \lim_{K(s)\to\infty} -X(s;K(s))
 \end{equation}
 $U(s)$ is the actuation signal.
 $P(s)$ is the actuation transfer function of this particular degree of freedom, and is defined as
@@ -81,6 +85,17 @@ At this point it because tedious to specify everything as a function of $s$, so 
 	\label{fig:generalcontrolblockdiagram}
 \end{figure}
 
+The first thing we would like to note is that the suspension is not automatically configured in such a way Fig.~\ref{fig:generalcontrolblockdiagram} is valid.
+This is because the sensors on a stage are not necessarily aligned to the DoFs that we are interested in.
+The location of the sensors are usually well known.
+With a geometric matric transformation, we will be able to obtain an initial ``map'' or sensing matrix that maps the sensing readouts to the DoFs that we are interested in.
+See \cite{bs_suspension_diagonalization, sr_suspension_diagonalization, all_of_the_vibration,  sensing_matrices_oplev} for references.
+However, this initial sensing matrix gives good calibration of the DoFs but might not be perfect so residual cross-couplings might still exist.
+This is done by modifying the sensing matrix / applying a second matrix along the signal path, i.e. ``diagonalization''.
+Similarly, the actuators might not be aligned to the desired DoFs and an actuation matrix is needed to align that.
+With the sensors and actuators aligned, Fig.~\ref{fig:generalcontrolblockdiagram} becomes valid for individual DoFs on a stage.
+
+Now, in Fig.~\ref{fig:generalcontrolblockdiagram}, $X$ represents the displacement of in an arbitrary DoF of an arbitrary stage.
 As shown in Fig.~\ref{fig:displacementtooptics}, there exists paths $P_\mathrm{X\to X_\mathrm{TM}}$, such that the displacement at any stage is transferred to the optics displacement $X_\mathrm{TM}$.
 \begin{figure}[!h]
 	\centering
@@ -88,7 +103,7 @@ As shown in Fig.~\ref{fig:displacementtooptics}, there exists paths $P_\mathrm{X
 	\caption{Displacement to optics' displacement path}
 	\label{fig:displacementtooptics}
 \end{figure}
-In reality, since there are many DoFs, there exists many paths like Fig.~\ref{fig:displacementtooptics}.
+In reality, since there are many DoFs, there exists many paths like Fig.~\ref{fig:displacementtooptics}, as shown in Fig.~\ref{fig:hierarhicalcontrolblockdiagram}.
 Hence, without the optics local control, the amplitude spectral density of the optics displacement $\hat{X}_\mathrm{TM}(f)$ is a quadrature sum of all these contribution, i.e.
 \begin{equation}
 	\hat{X}_\mathrm{TM}(f)=\left[\sum_i\left\lvert P_{X_i\to X_\mathrm{TM}}\right\rvert^2 \hat{X}_i(f)^2\right]^{\frac{1}{2}},
@@ -107,24 +122,75 @@ So, for each stage and each DoF, we estimate individual $\left\lvert P_{X_i\to X
 To estimate this, let's refer back to Fig.~\ref{fig:generalcontrolblockdiagram}.
 The displacement $X$ in the closed-loop configuration reads
 \begin{equation}
-	X = \frac{1}{1+KP}\ D + \frac{KP}{1+KP}\ N,
+	X = \frac{1}{1+KP}\ D - \frac{KP}{1+KP}\ N,
 \end{equation}
 and the amplitude spectral density reads
 \begin{equation}
 	\hat{X}(f) = \left[\left\lvert\frac{1}{1+KP}\right\rvert^2\hat{D}(f)^2 + \left\lvert\frac{KP}{1+KP}\right\rvert^2\hat{N}(f)^2\right]^\frac{1}{2}.
+	\label{eqn:x_asd}
 \end{equation}
 If we know the the amplitude spectral densities $\hat{D}(f)$ and $\hat{N}(f)$, and the plant $P$, we can estimate the amplitude spectral density $\hat{X}(f)$ when designing the controller $K$.
 If we know $\hat{X}(f)$ and $P_{X\to X_\mathrm{TM}}$, then we can estimate $\left\lvert P_{X\to X_\mathrm{TM}}\right\rvert \hat{X}(f)$, i.e. the displacement level of the optics due to displacement $X$.
 Then, we can tune $K$ such that $\left\lvert P_{X\to X_\mathrm{TM}}\right\rvert \hat{X}(f)$ satisfies the requirements.
 This is how we can design the controllers such such that the requirements are met.
 
-But realisically, we cannot design the controllers in arbitrary order.
+
+But realistically, we cannot design the controllers in arbitrary order.
+This strategy requires the a top-down hierarchical control tuning scheme, i.e. tuning the controllers stage-by-stage from the stage closest to the ground.
 This is because the amplitude spectral density of the disturbance $\hat{D}(f)$ is not easy to estimate.
 In fact, the disturbance at a lower stage depends on the displacement level at a higher stage, which depends on the controller of that higher stage.
-The only disturbance we can estimate is the disturbance at the highest stage, i.e. the preisolator (IP), whose disturbance is closely related to the seismic noise.
-...
+This is demonstrated in Fig.~\ref{fig:hierarhicalcontrolblockdiagram}.
+The only disturbance we can estimate is the disturbance at the highest stage $D_1$, i.e. the preisolator (IP), whose disturbance is closely related to the seismic noise $X_g$.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=187mm]{figures/hierarhical_control_block_diagram}
+	\caption{Control block diagram of a general multiple stage suspension with $N$ number of stages. The disturbance of a lower stage is connected to the displacement at a higher stage. Here we use numbered subscripts to denote stages further from the ground for simplicity. In reality, the stages are named something like F1, F2, BF, IM, etc... The optics' displacement $X_\mathrm{TM}$ is an example.}
+	\label{fig:hierarhicalcontrolblockdiagram}
+\end{figure}
 
+Now, let's re-elaborate the strategy using Fig.~\ref{fig:hierarhicalcontrolblockdiagram}, which shows a general hierarchical control architecture of KAGRA's suspensions.
+The strategy goes as follows.
+We specify a conservative seismic noise lever for $X_g$, say the seismic noise level at the $90^\mathrm{th}$ percentile in winter season as shown in Fig.~\ref{fig:kagra_seismic_noise_90th_percentile}, so we know $\hat{X}_g(f)$.
+The ASD of disturbance is given by
+\begin{equation}
+	\hat{D}_1(f) = \left\lvert P_{X_g\to X_1} \right\rvert \hat{X}_g(f),
+\end{equation}
+and $P_{X_g\to X_1}$ can be measured or estimated directly by $P_1$, but with a unity gain at DC.
+Then, we can estimate $\hat{N}_1$, the sensing noise at the preisolator stage.
+After that, we measure $P_1$, the actuation transfer function of the preisolator stage.
+From here, we have all the ingredients to estimate the displacement level $\hat{X}_1$ using Eqn.~\eqref{eqn:x_asd}, when designing the controller $K_1$.
+Then, we can also measure the transfer function $P_{X_1\to X_\mathrm{TM}}$\footnote{It's another story on how to measure this.}.
+With this, we can calculate the optics' displacement due to $X_1$ by
+\begin{equation}
+	\hat{X}_\mathrm{TM}(f) \approx \left\lvert P_{X_1\to X_\mathrm{TM}} \right\rvert \hat{X}_1(f).
+	\label{eqn:x_tm_due_to_x_1}
+\end{equation}
+We then tune $K_1$ such that Eqn.~\eqref{eqn:x_tm_due_to_x_1} satisfies requirements in Sec.~\ref{sec:displacement_noise_requirement} and Sec.~\ref{sec:residual_motion_requirement}.
+After tuning, $K_1$ is fixed and so is $X_1$.
+Hence, we can estimate the disturbance on the next stage via
+\begin{equation}
+	\hat{D}_2(f) = \left\lvert P_{X_1\to X_2}\right\rvert \hat{X}_1(f).
+\end{equation}
+Alternatively, we can simply estimate $D_2$ by measuring the open-loop spectrum of $X_2$ when the control of $X_1$ is engaged.
+But there're two assumptions here, 1) $D_2\gg N_2$, so the readout is mostly $D_2$ and that 2) $D_1$ is suppressed, so $X_1$ doesn't change a lot when $X_g$ changes.
+Then, we repeat the process for stage 2, stage 3 after that, and so on until all control loops are closed.
 
-
-
+To verify the control performance, we need to actually measure $\hat{X}_\mathrm{TM}(f)$ and verify that it satisfies the requirements in Sec.~\ref{sec:displacement_noise_requirement} and Sec.~\ref{sec:residual_motion_requirement}.
+However, with all controls engaged, measuring the optics' displacement using the local sensors could yield a wrong result.
+The optics' readout $X_\mathrm{TM, readout}$, i.e. the bottom-left path in Fig.~\ref{fig:hierarhicalcontrolblockdiagram}, can be written as
+\begin{equation}
+	X_\mathrm{TM, readout} = \frac{1}{1+K_\mathrm{TM}P_\mathrm{TM}}\ D_\mathrm{TM},
+\end{equation}
+which can be theoretically zero when $K_\mathrm{TM}$ is high.
+From Eqn.~\eqref{eqn:x_asd}, we know that this is not true.
+And in fact, the lower bound of the displacement is
+\begin{equation}
+	\underline{\hat{X}}_\mathrm{TM}(f)\approx\min\left(\hat{D}_\mathrm{TM}(f),\, \hat{N}_\mathrm{TM}(f)\right).
+\end{equation}
+This is a well known measurement error when using ``in-loop'' sensors for measurement.
+To measure the optics displacement properly, we must use sensors that is not part of the control loops, i.e. using an ``out-of-loop'' sensor.
+The candidate for this is a second optical lever, which doesn't exist, or the interferometer, which also doesn't exist at the moment.
+Therefore, we must disengage the controls at the optics stage before we can measure the residual motion of the optics.
+We assume that the displacement level of the optics will only be lower when the optics controls are engaged.
+Then, if the measurement above satisfies the residual motion requirements, then having the optics controls engaged will guarantee that the requirements are met as well.
 
