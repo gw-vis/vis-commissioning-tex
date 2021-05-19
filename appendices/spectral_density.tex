@@ -3,7 +3,7 @@
 \subsection{Cross power spectral density and power spectral density}
 The cross power spectral density (CPSD) between a signal $x(t)$ and $y(t)$ is defined as
 \begin{equation}
-	P_{xy}(f) \equiv \int_{-\infty}^\infty\ R_{xy}(\tau) e^{-i2\pi f \tau}\ d\tau\ ,
+	P_{xy}(f) \equiv \int_{-\infty}^\infty\ R_{xy}(\tau) e^{-i2\pi f \tau}\ d\tau\,,
 \end{equation}
 where $f$ is the frequency, $i$ is the imaginary number, and
 \begin{equation}
@@ -15,13 +15,13 @@ The power spectral density (PSD) of a single signal $x(t)$ is then defined as th
 \subsection{Amplitude spectral density}
 The amplitude spectral density of a signal x(t) is simply defined as
 \begin{equation}
-	\hat{x}(f) \equiv \left[P_{xx}(f)\right]^{\frac{1}{2}}
+	\hat{x}(f) \equiv \left[P_{xx}(f)\right]^{\frac{1}{2}}\,.
 \end{equation}
 
 \subsection{Coherence}
 The coherence between two signals $x(t)$ and $y(t)$ is then defined as
 \begin{equation}
-	C_{xy}(f) \equiv \frac{\left\lvert P_{xy}(f)\right\rvert^2}{P_{xx}(f)P_{yy}(f)}\ .
+	C_{xy}(f) \equiv \frac{\left\lvert P_{xy}(f)\right\rvert^2}{P_{xx}(f)P_{yy}(f)}\,.
 \end{equation}
 
 \subsection{Sum of signals}
@@ -29,7 +29,7 @@ If we have two signals that can be expressed by superposition of other signals, 
 \begin{equation}
 	\begin{split}
 		P_{xy}(f) &= \lim_{T\to\infty}\frac{1}{T}\int_0^T\ \int_{-\infty}^\infty\  \left[x_1(t)+x_2(t)\right][y_1(t-\tau)+y_2(t-\tau)]\,e^{-i2\pi f\tau}\ dt \\
-		&= P_{x_1y_1}(f) + P_{x_1y_2}(f) + P_{x_2y_1}(f) + P_{x_2y_2}(f)\ .
+		&= P_{x_1y_1}(f) + P_{x_1y_2}(f) + P_{x_2y_1}(f) + P_{x_2y_2}(f)\,.
 	\end{split} 
 \end{equation}
 \subsection{Uncorrelated signals}
@@ -38,12 +38,12 @@ For a signal that can be expressed a sum of two uncorrelation signals, $z(t)=x(t
 \begin{equation}
 	\begin{split}
 		P_{zz}(f) &= P_{xx}(f) + P_{xy}(f) + P_{yx}(f) + P_{yy}(f)\\
-		&= P_{xx}(f) + P_{yy}(f)\ .
+		&= P_{xx}(f) + P_{yy}(f)\,.
 	\end{split}
 \end{equation}
 
 \subsection{Transfer function}
 The transfer function with input $x(t)$ and output $y(t)$ is can be estimated by
 \begin{equation}
-	P_{X\to Y} = \frac{P_{xy}(f)}{P_{xx}(f)}\ .
+	P_{X\to Y} = \frac{P_{xy}(f)}{P_{xx}(f)}\,.
 \end{equation}

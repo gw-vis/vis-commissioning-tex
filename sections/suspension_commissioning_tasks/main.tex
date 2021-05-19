@@ -64,14 +64,14 @@ It has no non-zero frequency content so we'll just mention its existence here an
 $D(s)$ can be any arbitrary disturbance to that particular degree of freedom, that directly goes to the output $X(s)$
 It can be thought as the output $X(s)$ when there's no actuation, and can be defined as
 \begin{equation}
-	D(s) \equiv \lim_{K(s)\to 0} X\mleft(s;K(s)\mright).
+	D(s) \equiv \lim_{K(s)\to 0} X\mleft(s;K(s)\mright)\,.
 	\label{eqn:d}
 \end{equation}
 $X(s)$ is the output and can be thought as the actual displacement, not measured, of the DoF we aimed to control.
 This can be any of the arbitrary displacement at any stage of the suspension.
 $N(s)$ is the sensing noise, not exactly the sensor's intrinsic noise, but is defined as
 \begin{equation}
-	N(s) \equiv \lim_{K(s)\to\infty} -X(s;K(s)).
+	N(s) \equiv \lim_{K(s)\to\infty} -X(s;K(s))\,.
 	\label{eqn:n}
 \end{equation}
 As can be seen from Eqn.~\eqref{eqn:d} and \eqref{eqn:n}, the external disturbance $D(s)$ and sensing noise $N(s)$ can be thought as the limitation of the control performance.
@@ -81,7 +81,7 @@ Therefore, it's desirable to complete these additional tasks before proceeding t
 Back to Fig.~\ref{fig:generalcontrolblockdiagram}, $U(s)$ is the actuation signal.
 $P(s)$ is the actuation transfer function of this particular degree of freedom, and is defined as
 \begin{equation}
-	P(s) \equiv \frac{X(s)}{U(s)}
+	P(s) \equiv \frac{X(s)}{U(s)}\,.
 \end{equation}
 At this point it because tedious to specify everything as a function of $s$, so will simply omit to write the $s$ dependencies and assume all variables with capital letters are all functions of $s$ unless otherwise specified.
 \begin{figure}[!h]
@@ -112,7 +112,7 @@ As shown in Fig.~\ref{fig:displacementtooptics}, there exists paths $P_\mathrm{X
 In reality, since there are many DoFs, there exists many paths like Fig.~\ref{fig:displacementtooptics}, as shown in Fig.~\ref{fig:hierarhicalcontrolblockdiagram}.
 Hence, without the optics local control, the amplitude spectral density of the optics displacement $\hat{X}_\mathrm{TM}(f)$ is a quadrature sum of all these contribution, i.e.
 \begin{equation}
-	\hat{X}_\mathrm{TM}(f)=\left[\sum_i\left\lvert P_{X_i\to X_\mathrm{TM}}\right\rvert^2 \hat{X}_i(f)^2\right]^{\frac{1}{2}},
+	\hat{X}_\mathrm{TM}(f)=\left[\sum_i\left\lvert P_{X_i\to X_\mathrm{TM}}\right\rvert^2 \hat{X}_i(f)^2\right]^{\frac{1}{2}}\,,
 	\label{eqn:x_tm_asd}
 \end{equation}
 where $X_i$ is the displacement of the $i^\mathrm{th}$ DoF, $\hat{X}_i(f)$ is the amplitude spectral density of $X_i$ and $P_{X_i\to X_\mathrm{TM}}$ the transfer function from $X_i$ the optics displacement $X_\mathrm{TM}$.
@@ -120,7 +120,7 @@ where $X_i$ is the displacement of the $i^\mathrm{th}$ DoF, $\hat{X}_i(f)$ is th
 Now, individual contributions from different displacements in Eqn.~\eqref{eqn:x_tm_asd} can vary by orders of magnitude, and so they are often viewed in logarithmic scale.
 And because of this, the Eqn.~\eqref{eqn:x_tm_asd} can be approximated as
 \begin{equation}
-	\hat{X}_\mathrm{TM}(f) \approx \max_i \left(\left\lvert P_{X_i\to X_\mathrm{TM}} \right\rvert \hat{X}_i(f)\right).
+	\hat{X}_\mathrm{TM}(f) \approx \max_i \left(\left\lvert P_{X_i\to X_\mathrm{TM}} \right\rvert \hat{X}_i(f)\right)\,.
 \end{equation}
 With this in mind, the strategy is simple.
 We need to make sure that the displacement of the optics can satisfy the displacement requirements and residual motion requirements stated in Sec.~\ref{sec:displacement_noise_requirement} and Sec.~\ref{sec:residual_motion_requirement}.
@@ -128,11 +128,11 @@ So, for each stage and each DoF, we estimate individual $\left\lvert P_{X_i\to X
 To estimate this, let's refer back to Fig.~\ref{fig:generalcontrolblockdiagram}.
 The displacement $X$ in the closed-loop configuration reads
 \begin{equation}
-	X = \frac{1}{1+KP}\ D - \frac{KP}{1+KP}\ N,
+	X = \frac{1}{1+KP}\ D - \frac{KP}{1+KP}\ N\,,
 \end{equation}
 and the amplitude spectral density reads
 \begin{equation}
-	\hat{X}(f) = \left[\left\lvert\frac{1}{1+KP}\right\rvert^2\hat{D}(f)^2 + \left\lvert\frac{KP}{1+KP}\right\rvert^2\hat{N}(f)^2\right]^\frac{1}{2}.
+	\hat{X}(f) = \left[\left\lvert\frac{1}{1+KP}\right\rvert^2\hat{D}(f)^2 + \left\lvert\frac{KP}{1+KP}\right\rvert^2\hat{N}(f)^2\right]^\frac{1}{2}\,.
 	\label{eqn:x_asd}
 \end{equation}
 If we know the the amplitude spectral densities $\hat{D}(f)$ and $\hat{N}(f)$, and the plant $P$, we can estimate the amplitude spectral density $\hat{X}(f)$ when designing the controller $K$.
@@ -159,7 +159,7 @@ The strategy goes as follows.
 We specify a conservative seismic noise lever for $X_g$, say the seismic noise level at the $90^\mathrm{th}$ percentile in winter season as shown in Fig.~\ref{fig:kagra_seismic_noise_90th_percentile}, so we know $\hat{X}_g(f)$.
 The ASD of disturbance is given by
 \begin{equation}
-	\hat{D}_1(f) = \left\lvert P_{X_g\to X_1} \right\rvert \hat{X}_g(f),
+	\hat{D}_1(f) = \left\lvert P_{X_g\to X_1} \right\rvert \hat{X}_g(f)\,,
 \end{equation}
 and $P_{X_g\to X_1}$ can be measured or estimated directly by $P_1$, but with a unity gain at DC.
 Then, we can estimate $\hat{N}_1$, the sensing noise at the preisolator stage.
@@ -168,14 +168,14 @@ From here, we have all the ingredients to estimate the displacement level $\hat{
 Then, we can also measure the transfer function $P_{X_1\to X_\mathrm{TM}}$\footnote{It's another story on how to measure this.}.
 With this, we can calculate the optics' displacement due to $X_1$ by
 \begin{equation}
-	\hat{X}_\mathrm{TM}(f) \approx \left\lvert P_{X_1\to X_\mathrm{TM}} \right\rvert \hat{X}_1(f).
+	\hat{X}_\mathrm{TM}(f) \approx \left\lvert P_{X_1\to X_\mathrm{TM}} \right\rvert \hat{X}_1(f)\,.
 	\label{eqn:x_tm_due_to_x_1}
 \end{equation}
 We then tune $K_1$ such that Eqn.~\eqref{eqn:x_tm_due_to_x_1} satisfies requirements in Sec.~\ref{sec:displacement_noise_requirement} and Sec.~\ref{sec:residual_motion_requirement}.
 After tuning, $K_1$ is fixed and so is $X_1$.
 Hence, we can estimate the disturbance on the next stage via
 \begin{equation}
-	\hat{D}_2(f) = \left\lvert P_{X_1\to X_2}\right\rvert \hat{X}_1(f).
+	\hat{D}_2(f) = \left\lvert P_{X_1\to X_2}\right\rvert \hat{X}_1(f)\,.
 \end{equation}
 Alternatively, we can simply estimate $D_2$ by measuring the open-loop spectrum of $X_2$ when the control of $X_1$ is engaged.
 But there're two assumptions here, 1) $D_2\gg N_2$, so the readout is mostly $D_2$ and that 2) $D_1$ is suppressed, so $X_1$ doesn't change a lot when $X_g$ changes.
@@ -185,13 +185,13 @@ To verify the control performance, we need to actually measure $\hat{X}_\mathrm{
 However, with all controls engaged, measuring the optics' displacement using the local sensors could yield a wrong result.
 The optics' readout $X_\mathrm{TM, readout}$, i.e. the bottom-left path in Fig.~\ref{fig:hierarhicalcontrolblockdiagram}, can be written as
 \begin{equation}
-	X_\mathrm{TM, readout} = \frac{1}{1+K_\mathrm{TM}P_\mathrm{TM}}\ D_\mathrm{TM},
+	X_\mathrm{TM, readout} = \frac{1}{1+K_\mathrm{TM}P_\mathrm{TM}}\ D_\mathrm{TM}\,,
 \end{equation}
 which can be theoretically zero when $K_\mathrm{TM}$ is high.
 From Eqn.~\eqref{eqn:x_asd}, we know that this is not true.
 And in fact, the lower bound of the displacement is
 \begin{equation}
-	\underline{\hat{X}}_\mathrm{TM}(f)\approx\min\left(\hat{D}_\mathrm{TM}(f),\, \hat{N}_\mathrm{TM}(f)\right).
+	\underline{\hat{X}}_\mathrm{TM}(f)\approx\min\left(\hat{D}_\mathrm{TM}(f),\, \hat{N}_\mathrm{TM}(f)\right)\,.
 \end{equation}
 This is a well known measurement error when using ``in-loop'' sensors for measurement.
 To measure the optics displacement properly, we must use sensors that is not part of the control loops, i.e. using an ``out-of-loop'' sensor.

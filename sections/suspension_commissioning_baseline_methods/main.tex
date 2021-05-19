@@ -16,8 +16,8 @@ Example sensors are Linear Variable Differential Transformer (LVDT) \cite{Akutsu
 In KAGRA's suspension, displacements sensors are non-contact sensors, i.e. the sensor doesn't affect the motion the sensing object, so the suspensions can swing freely to achieve passive seismic isolation.
 However, this would mean that the sensing readout $Y$ contains the motion of the suspension, if the sensors are already installed, i.e.
 \begin{equation}
-	Y=X+N,
-	\label{eqn:sensing_readout}
+	Y=X+N\,,
+	\label{eqn:displacementsensing_readout}
 \end{equation}
 where $X$ is the displacement readout and $N$ is the sensing noise.
 Therefore, the only way to measure the sensor noise of the displacement sensors is to fix the suspension using the security structure, such that $X=0$.
@@ -34,9 +34,10 @@ This will be discuss in Sec.~\ref{sec:noise_modeling_baseline}.
 In this section, we will describe techniques using correlation methods to measure sensor noise of inertial sensors \cite{technique_for_measurement_of_the_noise, Sleeman2006ThreeChannelCA}. Please also refer to appendix~\ref{appendix:spectral_density} for definitions and properties related to spectral densities.
 
 Unlike displacement sensors, inertial sensors are self-contained sensors that are mounted to an object, whose motion are to be measured.
+Some example sensors are geophone \cite{Sekiguchi:2016bmv}, accelerometers \cite{status_of_acc_development_2}, and seismometers \cite{trillium_compact_120-sv1}.
 Calibrated inertial sensors output the velocity or the acceleration of the object which is relative to the object's inertial frame.
 Because of this, sensor noise of inertial sensors cannot be measured by measuring the readouts when fixing suspension, as the readouts become the motion of the ground (effectively making the inertial sensor a seismometer.).
-In this case, the readout of a single inertial sensor will be no different from that of Eqn.~\eqref{eqn:sensing_readout}.
+In any case, The readout of a single inertial sensor will be no different from that of Eqn.~\eqref{eqn:displacement_sensing_readout}.
 Therefore, we cannot use single readout to estimate the sensor noise.
 
 Instead, we rely on using multiple sensors and use correlation methods.
@@ -44,54 +45,91 @@ Now, let's assume that we have multiple sensors that reads $Y_i$, where $i=1,2,.
 If we place the sensors at the same location, they measure the same signal $X$.
 Then, the sensor readouts becomes
 \begin{equation}
-	Y_i = XH_i + N_i,
+	Y_i = XH_i + N_i\,,
+	\label{eqn:inertial_sensing_readout}
 \end{equation}
 where $H_i$ is the transfer function from the signal to the sensing readout and $N_i$ is the sensor noise of the $i^\mathrm{th}$ sensor.
+
+\paragraph{Two-channel method}
 
 If we have sensors that have the same response and same power spectral density, then we can determine the sensor noises using only two sensors \cite{technique_for_measurement_of_the_noise}.
 Let's say the sensors are well calibrated such that $H_i=1$, and assuming that the signal $X_i$ is uncorrelated with the noise $N_i$, then the power spectral density of the sensor readouts is simply
 \begin{equation}
-	P_{y_iy_i}(f) = P_{xx}(f) + P_{n_i n_i}(f)\ ,
+	P_{y_iy_i}(f) = P_{xx}(f) + P_{n_i n_i}(f)\,,
 \end{equation}
 and the cross power spectral density (CPSD) between $Y_i$ and $Y_j$ is
 \begin{equation}
 	\begin{split}
 	P_{y_iy_j}(f) &= P_{xx}(f) + P_{xn_i}(f) + P_{n_ix}(f) + P_{n_in_j}(f) \\
-	&= P_{xx}(f)\ ,
+	&= P_{xx}(f)\,,
 	\end{split}
+%	\label{eqn:p_yi_yj}
 \end{equation}
 where we assume $X$, $N_i$, and $N_j$ are uncorrelated for $i\neq j$ so their CPSD is identically zero.
 Following that, the coherence between sensor readout $Y_i$ and $Y_j$ is
 \begin{equation}
 	\begin{split}
 	C_{y_iy_j}(f) &= \frac{\left\lvert P_{y_iy_j(f)}\right\rvert^2}{P_{y_iy_i}(f)P_{y_jy_j}(f)}\\
-	&= \frac{P_{xx}(f)^2}{\left[P_{xx}(f)+P_{n_i n_i}(f)\right]\left[P_{xx}(f)+P_{n_j n_j}(f)\right]} \ .
+	&= \frac{P_{xx}(f)^2}{\left[P_{xx}(f)+P_{n_i n_i}(f)\right]\left[P_{xx}(f)+P_{n_j n_j}(f)\right]} \,.
 	\end{split}
 	\label{eqn:coherence_yi_yj}
 \end{equation}
 Here, if the power spectral densities of $N_i$ and $N_j$ is the same, i.e. $P_{n_in_i}(f)=P_{n_jn_j}(f)$, Eqn.~\eqref{eqn:coherence_yi_yj} further simplifies to
 \begin{equation}
-	C_{y_iy_j}(f) = \frac{P_{xx}(f)^2}{\left[P_{xx}(f)+P_{n_i n_i}(f)\right]^2}\ .
+	C_{y_iy_j}(f) = \frac{P_{xx}(f)^2}{\left[P_{xx}(f)+P_{n_i n_i}(f)\right]^2}\,.
 \end{equation}
 Substituting $P_{y_i y_i}(f) = P_{xx}(f) + P_{n_i n_i}(f)$ and rearranging, we get
 \begin{equation}
 	\begin{split}
 		C_{y_iy_j}(f)^\frac{1}{2} &= \frac{P_{xx}(f)}{P_{y_iy_i}(f)} \\
 		P_{y_iy_i}(f)C_{y_iy_j}(f)^\frac{1}{2} &= P_{xx}(f) \\
-		P_{y_iy_i}(f)\left[1-C_{y_iy_j}(f)^\frac{1}{2}\right] &= P_{y_iy_i}(f) - P_{xx}(f)\ .
+		P_{y_iy_i}(f)\left[1-C_{y_iy_j}(f)^\frac{1}{2}\right] &= P_{y_iy_i}(f) - P_{xx}(f)\,.
 	\end{split}
 \end{equation}
 Substituting $P_{n_i n_i}(f) = P_{y_i y_i}(f) - P_{xx}(f)$, finally we obtain
 \begin{equation}
-	P_{n_i n_i}(f) = P_{y_iy_i}(f)\left[1-C_{y_iy_j}(f)^\frac{1}{2}\right]\ ,
+	\boxed{
+		P_{n_i n_i}(f) = P_{y_iy_i}(f)\left[1-C_{y_iy_j}(f)^\frac{1}{2}\right]
+	}\,\ .
+	\label{eqn:p_ni_ni_2channel}
 \end{equation}
-and
-the amplitude spectral density of the sensor noise is simply
+And again, note that Eqn.~\eqref{eqn:p_ni_ni_2channel} only works if the two sensors are identical, i.e. having the same noise spectral density and are inter-calibrated such that the read a same coherent signal.
+
+\paragraph{Three-channel method}
+
+Now, if we don't have identical sensors, which is generally true, then we have to rely on a three-channel method that uses 3 sensors.
+The advantage of this method is that we can estimate the sensor noise of each individual sensor, even if they have completely different calibration, dynamics, and noise spectrum.
+Recall the sensor readout Eqn.~\eqref{eqn:inertial_sensing_readout}, the cross power spectral density between the $i^\mathrm{th}$ and $j^\mathrm{th}$ sensors is
 \begin{equation}
-	\hat{N}_i(f) = \hat{Y}_i(f)\left[1-C_{y_iy_j}(f)^\frac{1}{2}\right]^\frac{1}{2}\ .
-	\label{eqn:n_i_2sensor}
+	P_{y_iy_j}(f) = P_{xx}(f)H_iH_j^*\,,
 \end{equation}
-And again, note that Eqn.~\eqref{eqn:n_i_2sensor} only works if the two sensors are identical, i.e. having the same noise spectral density and are inter-calibrated such that the read a same coherent signal.
+where $H_j^*$ denotes the complex conjugate of the transfer function $H_j$ and $i\neq j$.
+Again, we have assumed that the coherent signal $X$, the noises $N_i$ and $N_j$ are uncorrelated such that their CPSDs are zero.
+If we have three sensors then we can have two cross power spectral density, $P_{y_iy_k}(f)$ and $P_{y_jy_k}(f)$, and $i,j,k=1,2,3$ and $i\neq j\neq k$.
+Then, taking the ratio gives
+\begin{equation}
+	\frac{P_{y_iy_k}(f)}{P_{y_jy_k}(f)} = \frac{H_i}{H_j}\,.
+	\label{eqn:p_yi_yj}
+\end{equation}
+The ratio between the PSD $P_{y_iy_i}(f)$ and CPSD $P_{y_jy_i}$ reads
+\begin{equation}
+	\begin{split}
+	\frac{P_{y_iy_i}(f)}{P_{y_jy_i}(f)} &= \frac{P_{xx}(f)H_iH_i^*\ + P_{n_in_i}(f)}{P_{xx}(f)H_jH_i^*} \\
+	&= \frac{H_i}{H_j} + \frac{P_{n_in_i}(f)}{P_{y_jy_i}(f)}\,.
+	\end{split}
+	\label{eqn:p_yi_yi_on_p_yj_yi}
+\end{equation}
+Now, substituting Eqn.~\eqref{eqn:p_yi_yj} into Eqn.~\eqref{eqn:p_yi_yi_on_p_yj_yi} and rearranging gives
+\begin{equation}
+	\boxed{
+		P_{n_in_i}(f) = P_{y_iy_i}(f) - \frac{P_{y_iy_k}(f)}{P_{y_jy_k}(f)}P_{y_jy_i}(f)\,
+	}\,\ ,
+	\label{eqn:p_ni_ni_3channel}
+\end{equation}
+which expresses the PSD of the noise as the PSDs and the CPSDs of the measurements.
+
+\paragraph{Examples and comparison}
+
 
 
 
