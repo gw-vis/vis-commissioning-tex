@@ -14,7 +14,7 @@
 	filecolor=magenta,      
 	urlcolor=cyan,
 }
-
+\usepackage[toc,page]{appendix}
 \setlength{\parskip}{1em}
 \setlength{\parindent}{0cm}
 \title{Suspension Commissioning Handbook\footnote{Upstream url: \url{https://github.com/gw-vis/vis-commissioning-tex}}
@@ -30,6 +30,7 @@
 	\input{sections/suspension_commissioning_tasks/main.tex}
 	\input{sections/suspension_commissioning_baseline_methods/main.tex}
 	\input{sections/suspension_commissioning_advanced_methods/main.tex}
-	\bibliographystyle{plain}
+	\bibliographystyle{unsrt}
 	\bibliography{main_bib}
+	\input{appendices/appendices.tex}
 \end{document}

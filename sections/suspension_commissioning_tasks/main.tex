@@ -1,4 +1,4 @@
-\section{Suspension Commissioning Tasks}
+\section{Suspension Commissioning Tasks \label{sec:suspension_commissioning_tasks}}
 In this section, we will describe what are some specific tasks needed to be done in order to achieve the aforementioned goals in Sec.~\ref{sec:goal}.
 In next section, Sec.~\ref{sec:suspension_commissioning_baseline_methods}, we will describe some of the mathematical details on how to complete these tasks, and how to evaluate the performance of the suspensions.
 In the section after the next, Sec.~\ref{sec:suspension_commissioning_advanced_methods}, we will review some methods that has been proposed but are not considered baseline.
@@ -47,7 +47,7 @@ These tasks are defined with the assumption that we have healthy hardware and we
 	\item Measure the residual motion using the sensors at the optics stage as an out-of-loop sensor (Do not engage the control-loops that use the optics' sensors). If this fails, find the problematic stage and redo all controllers starting from there.
 		\begin{itemize}
 			\item We can measure the spectrum directly, given that the sensors at the optics are not coupled to the ground motion and that the ground motion is close to what we are targeting.
-			\item Alternatively, we can inject a timeseries equivalent to the target seismic noise at the highest stage to simulate the worst-case scenario.
+			\item Alternatively, we can inject a simulated time series equivalent to the target seismic noise at the highest stage to simulate the worst-case scenario.
 		\end{itemize}
 	\item (If there exists an interferometer) Measure actuation to differential arm length control signal (DARM) transfer function and measure the displacement noise. If this fails, find the problematic stage and redo all controllers starting from there.
 \end{enumerate}
@@ -55,7 +55,7 @@ These tasks are defined with the assumption that we have healthy hardware and we
 \subsection{Further elaboration}
 In this section we will discuss why do we need to complete the tasks as stated in Sec.~\ref{sec:list_of_tasks} and why are they listed in that order.
 We will be discussing in the language of control theory.
-If you're not familiar with the topic, please refer to introductory textbooks such as \cite{modern_control_engineering} and \cite{control_engineering}.
+If you're not familiar with the topic, please refer to introductory textbooks such as \cite{modern_control_engineering} and \cite{control_engineering}. Please also refer to appendix~\ref{appendix:spectral_density} for definitions and properties related to spectral densities.
 
 Consider the control diagram as shown in Fig.~\ref{fig:generalcontrolblockdiagram}.
 $R(s)$, $D(s)$, and $N(s)$ are the external inputs, and they are the setpoint, disturbance, and noise respectively.
