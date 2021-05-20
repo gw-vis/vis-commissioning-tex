@@ -6,8 +6,8 @@ These are also methods that has been used previously by various experts at KAGRA
 However, these methods can be suboptimal.
 For advanced methods, please refer to the next section, Sec.~\ref{sec:suspension_commissioning_advanced_methods}.
 
-\subsection{Sensor noise measurement}
-In this section we will describe the measurement of displacement sensors and inertial sensors, and how to model them.
+\subsection{Sensor noise measurement and estimation}
+In this section we will describe the measurement and estimation of the intrinsic noise of displacement sensors and inertial sensors, and how to model them.
 
 \subsubsection{Displacement sensors \label{displacement_sensors_baseline}}
 Displacement sensors are usually relative displacement sensors that measure the differential displacement between the mounting point and an object.
@@ -17,7 +17,7 @@ In KAGRA's suspension, displacements sensors are non-contact sensors, i.e. the s
 However, this would mean that the sensing readout $Y$ contains the motion of the suspension, if the sensors are already installed, i.e.
 \begin{equation}
 	Y=X+N\,,
-	\label{eqn:displacementsensing_readout}
+	\label{eqn:displacement_sensing_readout}
 \end{equation}
 where $X$ is the displacement readout and $N$ is the sensing noise.
 Therefore, the only way to measure the sensor noise of the displacement sensors is to fix the suspension using the security structure, such that $X=0$.
@@ -65,7 +65,7 @@ and the cross power spectral density (CPSD) between $Y_i$ and $Y_j$ is
 	\end{split}
 %	\label{eqn:p_yi_yj}
 \end{equation}
-where we assume $X$, $N_i$, and $N_j$ are uncorrelated for $i\neq j$ so their CPSD is identically zero.
+where we assume $X$, $N_i$, and $N_j$ are uncorrelated for $i\neq j$ so their CPSDs are identically zero.
 Following that, the coherence between sensor readout $Y_i$ and $Y_j$ is
 \begin{equation}
 	\begin{split}
@@ -97,7 +97,7 @@ And again, note that Eqn.~\eqref{eqn:p_ni_ni_2channel} only works if the two sen
 
 \paragraph{Three-channel method}
 
-Now, if we don't have identical sensors, which is generally true, then we have to rely on a three-channel method that uses 3 sensors.
+Now, if we don't have identical sensors, which is generally true, then we have to rely on a three-channel method that uses 3 sensors \cite{Sleeman2006ThreeChannelCA}.
 The advantage of this method is that we can estimate the sensor noise of each individual sensor, even if they have completely different calibration, dynamics, and noise spectrum.
 Recall the sensor readout Eqn.~\eqref{eqn:inertial_sensing_readout}, the cross power spectral density between the $i^\mathrm{th}$ and $j^\mathrm{th}$ sensors is
 \begin{equation}
@@ -128,8 +128,54 @@ Now, substituting Eqn.~\eqref{eqn:p_yi_yj} into Eqn.~\eqref{eqn:p_yi_yi_on_p_yj_
 \end{equation}
 which expresses the PSD of the noise as the PSDs and the CPSDs of the measurements.
 
+\textbf{Warning. The following paragraph is not from \cite{Sleeman2006ThreeChannelCA}, but is seemingly important.}
+
+\paragraph{Modified three-channel method}
+
+Let's inspect Eqn.~\eqref{eqn:p_ni_ni_3channel}.
+Eqn.~\eqref{eqn:p_ni_ni_3channel} is an equation as written in \cite{Sleeman2006ThreeChannelCA} but is seemingly not directly implementable.
+The second term in Eqn.~\eqref{eqn:p_ni_ni_3channel} are products of cross power spectral densities.
+If we look at Eqn.~\eqref{eqn:p_yi_yj}, the CPSDs are expressed in products of transfer functions, are complex-valued series.
+These features should note exist in a power spectral density as it's expected to be a real-valued frequency series.
+To fix this problem, we propose to modify Eqn.~\ref{eqn:p_ni_ni_3channel} by taking the absolute value of the second term, i.e.,
+\begin{equation}
+	\begin{split}
+	P_{n_in_i}(f) &\approx P_{y_iy_i}(f) - \left\lvert\frac{P_{y_iy_k}(f)}{P_{y_jy_k}(f)}P_{y_jy_i}(f)\right\rvert\\
+	&= P_{y_iy_i}(f) - \frac{\left\lvert P_{y_iy_k}(f)\right\rvert}{\left\lvert P_{y_jy_k}(f)\right\rvert}\left\lvert P_{y_jy_i}(f)\right\rvert\,.
+	\end{split}
+	\label{eqn:modified_three_channel_noise}
+\end{equation}
+Recall that the definition of coherence function, first line of Eqn.~\eqref{eqn:coherence_yi_yj}, we can write express the absolute value of a cross power spectral density as
+\begin{equation}
+	\left\lvert P_{y_iy_j}(f)\right\rvert = C_{y_iy_j}(f)^{\frac{1}{2}}P_{y_iy_i}(f)P_{y_jy_j}(f)\,
+	\label{eqn:absolute_cpsd}
+\end{equation}
+where $C_{y_iy_j}(f)$ is the coherence function between readouts $Y_i$ and $Y_j$.
+Substituting Eqn.~\eqref{eqn:absolute_cpsd} into Eqn.~\eqref{eqn:modified_three_channel_noise} gives
+\begin{equation}
+	\boxed{
+		P_{n_in_i}(f) \approx 	P_{y_iy_i}(f)\left[1-\left(\frac{C_{y_iy_k}(f)}{C_{y_jy_k}(f)}C_{y_jy_i}(f)\right)^\frac{1}{2}\right]
+	}\,\ ,
+	\label{eqn:modified_p_ni_ni_3channel}
+\end{equation}
+which is an expression very similar to Eqn.~\ref{eqn:p_ni_ni_2channel} and has convenient properties, i.e. coherence functions are symmetric $C_{ij}(f) = C_{ji}(f)$.
+
 \paragraph{Examples and discussions}
 
+We will demonstrate the use of these correlation methods in the form of a Jupyter notebook.
+The notebook is available in the Kontrol library \cite{kontrol_noise_estimation}.
+We will copy important results from the notebook.
+
+In this setup, we have three sensors reading $y_1(t)$, $y_2(t)$, and $y_3(t)$ respectively.
+These readouts follow the from of Eqn.~\eqref{eqn:inertial_sensing_readout}.
+Furthermore, we assume the noises can be expressed as $N_i = G_iW_i$, where $G_i$ is the noise dynamics/transfer function and $W_i$ is unitary white noise, such that the noises are colored.
+The sensors are assumed to be sensing a common signal $x(t)$ such the the sensors read
+\begin{equation}
+	Y_i = XH_i + G_iW_i,
+\end{equation}
+and $i=1,2,3$.
+Now, let's assume that $H_1=H_2$ and $G_1=G_2$ so we use the two-channel method, i.e. Eqn.~\eqref{eqn:p_ni_ni_2channel} to get the PSD of $N_1$ and $N_2$.
+As for $N_3$, we can use the modified three-channel method, i.e. Eqn.~\eqref{eqn:modified_p_ni_ni_3channel}.
 
 
 

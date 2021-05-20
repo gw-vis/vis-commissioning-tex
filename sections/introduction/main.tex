@@ -21,11 +21,11 @@ We will also be discussing what should interferometer commissioners expect from 
 In section~\ref{sec:goal}, we will be discussing the goals that we should work towards to achieve. We will be briefly discussing the background behind these goals and requirements.
 These are mainly taken from \cite{Sekiguchi:2016bmv} and we strongly recommend readers to read it for detailed explanation.
 In section~\ref{sec:suspension_commissioning_tasks}, we will be discussing some of the tasks involved in suspension commissioning.
-
-[FIXME]
-In particular, we will discussing software tasks, such as sensor diagonalization, and control.
-We will also be discussing, in detail, some of the techniques that can be used to tackle these problems.
-At last, section [ref sec.~4] is dedicated to the discussion of performance measurement, which is a series of tests to check if we have met the suspension commissioning requirements.
+These tasks are foreseen to be recurring in the future so it's important to document the methods and techniques used to tackle them
+So, section~\ref{sec:suspension_commissioning_baseline_methods} and ~\ref{sec:suspension_commissioning_advanced_methods} will be dedicated to explaining the methods and the ideas behind them.
+The former will include baseline/fallback methods, such as noise modeling, classical loopshaping, and stability criteron, that are decent enough or easy to understand, may be suboptimal but sufficient.
+The latter will include advanced/modern methods, such as optimization methods, $\mathcal{H}_\infty$ methods in control,  and PReQua \cite{prequa}, for readers who seek to optimize suspension performance.
+We will refer to external references, give examples, and even code wherever possible.
 
 
 \subsection{Suspension commissioning as a stepping stone}
