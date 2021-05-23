@@ -1,0 +1,13 @@
+\section{Mathematical optimization \label{appendix:optimization}}
+\subsection{The arg min function}
+For some cost function $J(\theta)$, where $\theta$ is some parameters, we say $\theta^*$ is the optimizer such that
+\begin{equation}
+	J(\theta^*) = \min_\theta J(\theta).
+\end{equation}
+Another way to express $\theta^*$ is
+\begin{equation}
+	\theta^* = \arg\min_\theta J(\theta),
+\end{equation}
+which is the mathematical way of saying $\theta^*$ is the argument in the set $\{\theta\}$, that minimizes $J$.
+\subsubsection{Example}
+For a function $f(x)=x^2+1$, and $x\in\mathbb{R}$, $\min_{x\in\mathbb{R}} f(x)=1$ and and $x^*=\arg\min_{x\in\mathcal{R}} f(x) = 0$.

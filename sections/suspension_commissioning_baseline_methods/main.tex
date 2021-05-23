@@ -6,10 +6,10 @@ These are also methods that has been used previously by various experts at KAGRA
 However, these methods can be suboptimal.
 For advanced methods, please refer to the next section, Sec.~\ref{sec:suspension_commissioning_advanced_methods}.
 
-\subsection{Sensor noise measurement and estimation}
+\subsection{Sensor noise measurement and estimation \label{sec:sensor_noise_measurement}}
 In this section we will describe the measurement and estimation of the intrinsic noise of displacement sensors and inertial sensors, and how to model them.
 
-\subsubsection{Displacement sensors \label{displacement_sensors_baseline}}
+\subsubsection{Displacement sensors \label{sec:displacement_sensors_baseline}}
 Displacement sensors are usually relative displacement sensors that measure the differential displacement between the mounting point and an object.
 Example sensors are Linear Variable Differential Transformer (LVDT) \cite{Akutsu:2021auw}, optical sensors and electromagnetic actuator (OSEM) \cite{Akutsu:2020efg, use_of_osems}, photo-reflective displacement sensors/photo sensors (PS), and optical levers (OpLev) \cite{sensing_matrices_oplev, length_sensing_oplev, optical_lever_for_kagra}.
 
@@ -30,7 +30,7 @@ If sensors are installed and in operation, there's no way to use these methods t
 But, approximation can still be done if have a model of the sensor noise.
 This will be discuss in Sec.~\ref{sec:noise_modeling_baseline}.
 
-\subsubsection{Inertial sensors}
+\subsubsection{Inertial sensors \label{sec:inertial_sensors_baseline}}
 In this section, we will describe techniques using correlation methods to measure sensor noise of inertial sensors \cite{technique_for_measurement_of_the_noise, Sleeman2006ThreeChannelCA}. Please also refer to appendix~\ref{appendix:spectral_density} for definitions and properties related to spectral densities.
 
 Unlike displacement sensors, inertial sensors are self-contained sensors that are mounted to an object, whose motion are to be measured.
@@ -163,23 +163,131 @@ which is an expression very similar to Eqn.~\ref{eqn:p_ni_ni_2channel} and has c
 \paragraph{Examples and discussions}
 
 We will demonstrate the use of these correlation methods in the form of a Jupyter notebook.
-The notebook is available in the Kontrol library \cite{kontrol_noise_estimation}.
-We will copy important results from the notebook.
+The notebook is available in the Kontrol library \cite{kontrol_noise_estimation}, where Eqn.~\eqref{eqn:p_ni_ni_2channel}, ~\eqref{eqn:modified_three_channel_noise}, and \eqref{eqn:modified_p_ni_ni_3channel} are coded.
+We will copy important results from the \href{https://kontrol.readthedocs.io/en/latest/tutorials/noise_estimation_using_correlation_methods.html}{notebook}.
 
-In this setup, we have three sensors reading $y_1(t)$, $y_2(t)$, and $y_3(t)$ respectively.
-These readouts follow the from of Eqn.~\eqref{eqn:inertial_sensing_readout}.
-Furthermore, we assume the noises can be expressed as $N_i = G_iW_i$, where $G_i$ is the noise dynamics/transfer function and $W_i$ is unitary white noise, such that the noises are colored.
-The sensors are assumed to be sensing a common signal $x(t)$ such the the sensors read
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.8\linewidth]{figures/noise_estimation_using_correlation_methods}
+	\caption{A comparison between the two-channel method and three-channel method.}
+	\label{fig:noiseestimationusingcorrelationmethods}
+\end{figure}
+Fig.~\ref{fig:noiseestimationusingcorrelationmethods} shows a comparison between the two correlation methods from the notebook.
+Sensor 1 and 2 has the same dynamics and noise PSDs, while sensor 3 has a completely different dynamics and noise PSD from the other two.
+We used two-channel method to predict sensor noise 1 and 2, and used three-channel method for all of them.
+We also used the two-channel method to predict sensor noise 3 using sensor 1 as a correlated sensor.
+As shown in the figure, the predicted PSDs (shown in green dashed and dotted black lines) are very close to the actual sensor noises (shown in orange).
+Here, we emphasize that using the two-channel method to predict self noise of sensor 3 is not a valid attempt as the other sensors don't have the same sensor dynamics and noise spectral density.
+Hence, the green dashed line on the bottom left in Fig.~\ref{fig:noiseestimationusingcorrelationmethods} might be a fluke.
+We used the same method to predict sensor noise 1 using sensor 3 as a correlated sensor and the prediction was clearly off (See the notebook for a figure).
+\newpage
+
+\subsection{Frequency series fitting using mathematical optimization}
+In this section, we will be discussing how to model frequency series using optimization methods.
+In particular, we will discuss the fitting of noise spectum measurments in Sec.~\ref{sec:noise_modeling_baseline}, as a follow up of Sec.~\ref{sec:sensor_noise_measurement}.
+And, the fitting of transfer function measurements is discussed in Sec.~\ref{sec:transfer_function_modeling}.
+Some general tips on fitting frequency series using optimization is given in Sec.~\ref{sec:optimization_tips}.
+In Sec.~\ref{sec:curve_fitting_examples}, we will exemplify the methods discussed.
+We will be using mathematical optimization notations as given in appendix \ref{appendix:optimization}.
+A good \verb|SciPy| reference on mathematical optimization can be found in \cite{scipy_mathematical_optimization}.
+In this section, we will refer the word ``optimization'' to ``mathematical optimization'', which is to minimize an objective function/cost function.
+\subsubsection{Noise spectrum modeling \label{sec:noise_modeling_baseline}}
+In this section, we will discuss how to obtain a noise model from some sensor readout.
+This can be useful if we need to have a analytic model or if we want to estimate the sensor noise from a signal sensor, whose readout is not purely noise-dominated.
+
+If conditions in the Sec.~\ref{sec:displacement_sensors_baseline} and Sec.~\ref{sec:inertial_sensors_baseline}, such as fixing the suspensions or measuring the readout before installation, are not available, we cannot use the aforementioned noise measurement methods.
+But, we can still estimate the sensor noise via a curve fitting procedure, if we have a noise model and if the signal sensor readout is not dominated at all frequencies, i.e. signal only dominates spectral partially.
+An example of this situation would be a sensor that measures a damped sinusoidal, i.e.
 \begin{equation}
-	Y_i = XH_i + G_iW_i,
+	y(t) = x(t) + n(t) = C\Re{\left(e^{\sigma+i\omega_n t}\right)} + n(t)\,,
 \end{equation}
-and $i=1,2,3$.
-Now, let's assume that $H_1=H_2$ and $G_1=G_2$ so we use the two-channel method, i.e. Eqn.~\eqref{eqn:p_ni_ni_2channel} to get the PSD of $N_1$ and $N_2$.
-As for $N_3$, we can use the modified three-channel method, i.e. Eqn.~\eqref{eqn:modified_p_ni_ni_3channel}.
+where $x(t) = C\Re{\left(e^{\sigma+i\omega_n t}\right)}$ is the signal, $C$ is a real number, $\sigma$ is a negative real number, $\omega_n$ is the oscillation frequency, and $n(t)$ is the sensor noise.
+In this case, the frequency spectrum of signal $x(t)$ is localized around $f=2\pi\omega_n$, while the frequency content of the sensor noise $n(t)$ spreads all frequencies, which is very typical for motion sensors in a suspension.
 
+Say, we have measurements
+\begin{equation}
+	\hat{Y}(f) = \left[\hat{X}(f)^2 + \hat{N}(f)^2\right]^{\frac{1}{2}}\,,
+	\label{eqn:sensor_measurement}
+\end{equation}
+where $\hat{Y}(f)$ is the ASD of the sensor readout $y(t)$, $\hat{X}(f)$ is the ASD of some signal $x(t)$, and $\hat{N}(f)$ is the ASD of the sensor noise $n(t)$ that we want to measure/model.
+If we have a noise amplitude spectral model $\hat{N}_\mathrm{model}(f;\theta_{\hat{N}_\mathrm{model}})$, where $\theta_{\hat{N}_\mathrm{model}}$ is a list of parameters that defines the noise $\hat{N}_\mathrm{model}$, then we can do a curve fit to obtain the noise model.
+A example choice of the noise model would be a quadrature sum
+\begin{equation}
+	\hat{N}_\mathrm{model}(f;\theta_{\hat{N}_\mathrm{model}})=\left[\left(\frac{N_a}{f^a}\right)^2 + \left(\frac{N_b}{f^b}\right)^2\right]^{\frac{1}{2}}\,,
+	\label{eqn:noise_model}
+\end{equation}
+where $\theta_{\hat{N}_\mathrm{model}}=\{N_a,N_b,a,b\}$ are the model parameters.
 
+The fit can be as simple as a least squares fit, i.e. by minimizing the sum of error squares cost function
+\begin{equation}
+	J_\mathrm{lsq}\mleft(\theta;A(m), B(m,\theta)\mright) = \sum_m^M\left[A(m)-B(m,\theta)\right]^2 w(m)^2\,,
+	\label{eqn:least_squares_cost_function}
+\end{equation}
+where $\theta$ is some model parameters of an arbitrary analytical function $B(m,\theta)$, $A(m)$ is the measurement data, $m$ is a common parametrization of the series $A$ and $B$, and $w(m)$ is a user-designed weighting of each data point (weighting function).
+Typical choice of $m$ could be time $t$, frequency $f$, or simply data index.
+Minimization of Eqn.~\eqref{eqn:least_squares_cost_function} will give you the optimal parameters $\theta^*$ such that the best fit of data $A$ is the model $B(\theta^*)$.
 
-\subsubsection{Noise modeling \label{sec:noise_modeling_baseline}}
+We can use the least squares fit directly but this is not the best for fitting measurement data that is typically viewed in log or log-log plots, where the value of data points varies drastically in orders of magnitude.
+Instead, we use $J_\mathrm{lsq}\mleft(\theta;\log{A(m)}, \log{B(m,\theta)}\mright)$.
+
+As for the weighting function $w(f)$ (now as a function of frequency), an easy choice for our purpose would be
+\begin{equation}
+	w(f)=
+	\begin{cases}
+		0 &,\, f_\mathrm{lower}<f<f_\mathrm{upper} \\
+		1 &,\, \textit{otherwise}
+	\end{cases}
+	\,,
+	\label{eqn:weighting_function_frequency_bound}
+\end{equation}
+where $\left(f_\mathrm{lower},f_\mathrm{upper}\right)$ is a frequency bound that encloses frequency regions that has high SNR, indicated by the peak feature.
+The choices of the design parameters $f_\mathrm{lower}$ and $f_\mathrm{upper}$ can't be easily told here as it requires users to look at the visualized data and make educated guesses.
+Instead, we will demonstrate the choice of this bound in an example shown in Sec.~\ref{sec:curve_fitting_examples}.
+
+To sum up, we have sensor data $\hat{Y}(f)$, which is an ASD (works for PSD as well.) as shown in Eqn.~\eqref{eqn:sensor_measurement}, and we would like to model the sensor noise $\hat{N}(f)$ with a model $\hat{N}(f;\theta_{\hat{N}_\mathrm{model}})$, where $\theta_{\hat{N}_\mathrm{model}}$ is a list of parameters of the sensor noise model.
+We do so by minimizing the cost function
+\begin{equation}
+	\boxed{
+		J_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)=\sum_m^M\left[\log\hat{y}(f_m)-\log\hat{N}_\mathrm{model}(f_i, \theta_{\hat{N}_\mathrm{model}})\right]^2 w(f)^2
+	}\,,
+\end{equation}
+where the weighting function $w(f)$ is given in Eqn.~\eqref{eqn:weighting_function_frequency_bound}.
+The reason for using the log-error instead of the typical error is given in Sec.~\ref{sec:optimization_tips}.
+Minimization gives best-fit parameters
+\begin{equation}
+	\theta_{\hat{N}_\mathrm{model}}^*=\arg\min_{\theta_{\hat{N}_\mathrm{model}}} \hat{J}_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)\,,
+\end{equation} such that the noise model $\hat{N}_\mathrm{model}\mleft(f;\theta_{\hat{N}_\mathrm{model}}^*\mright)$ becomes a best fit of the noise spectral density $\hat{N}(f)$.
+The minimization can be done using methods that will be discussed in Sec.~\ref{sec:optimization_tips}.
+\subsubsection{Transfer function modeling \label{sec:transfer_function_modeling}}
+
+\subsubsection{Some tips on using optimization \label{sec:optimization_tips}}
+Minimization with measurement data can be done iteratively using optimization algorithms like gradient descent \cite{enwiki:1019572955} (local minimization) or stimulated annealing \cite{enwiki:1017509035} (global minimization).
+We will not dive into the topic of mathematical optimization since it's a topic on it's own and is out of the scope of this document.
+Instead, we will simply be using packages that are readily available.
+A very useful Python submodule is \verb|scipy.optimize| \cite{scipy_optimize}.
+It provides functions for both local minimization (\verb|scipy.optimize.minimize()|) and global minimization.
+It comes with many popular algorithms such as the Nelder-Mead algorithm (\verb|scipy.optimize.minimize(..., method="Nelder-Mead")|) \cite{wiki:nelder_mead}, which is known to be good for optimization with noisy experiment data, or differential evolution \linebreak(\verb|scipy.optimize.differential_evolution()|) \cite{wiki:differential_evolution}.
+The choice of algorithm is very subtle as different algorithms practically perform equally well for our purpose.
+If you really need to know which one to use, try consulting \cite{scipy_mathematical_optimization}.
+However, we do distinguish the choice between a local minimization algorithm and a global one.
+The former can only be used when with guessed initial parameters, while the latter one can only be used when the boundaries of the parameters is known.
+Typically, we\footnote{I mean I (Terrence)} prefer global optimization approaches because typically we don't know the parameters.
+While the optimization result can depend on the initial guesses, having a poor guess would yield suboptimal results.
+
+An important note on numerical optimization is parameter scaling \cite{wiki:preconditioner}.
+We won't go into details.
+The idea is to scale the parameters in such that they are all in the same scale, hence the cost function is equally sensitive to all parameters.
+For some parameters $\theta=\{\theta_1,\theta_2\}$ that has a large dynamic range, it might be helpful if we optimize $\tilde{\theta}=\{\log\theta_1, \log\theta_2\}$ instead.
+An example where this kind of rescaling is necessary is transfer function fitting with polynomial models, which have coefficients the vary in orders of magnitude.
+Another example would be $N_a$ and $N_b$ from Eqn.~\eqref{eqn:noise_model}, which are noise levels that can also vary drastically.
+
+Another useful pre-processing procedure would be to resample the data using an log-spaced frequency axis, instead of using the linearly spaced one as obtained during Fourier transform.
+With linear-space frequency points, the majority of the data clusters at higher frequencies as viewed from a log-frequency axis, which create bias towards high frequency data.
+As a result, the best-fit model might fit measurement data at higher frequencies better than that at lower frequencies.
+A simple resample of the data will redistribute the data uniformly across the log-frequency axis.
+
+\subsubsection{Examples \label{sec:curve_fitting_examples}}
+.
 \subsection{Control matrices}
 \subsubsection{Sensing matrices}
 \subsubsection{Actuation matrices}
