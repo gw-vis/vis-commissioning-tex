@@ -160,7 +160,7 @@ Substituting Eqn.~\eqref{eqn:absolute_cpsd} into Eqn.~\eqref{eqn:modified_three_
 \end{equation}
 which is an expression very similar to Eqn.~\ref{eqn:p_ni_ni_2channel} and has convenient properties, i.e. coherence functions are symmetric $C_{ij}(f) = C_{ji}(f)$.
 
-\paragraph{Examples and discussions}
+\subsubsection{Examples}
 
 We will demonstrate the use of these correlation methods in the form of a Jupyter notebook.
 The notebook is available in the Kontrol library \cite{kontrol_noise_estimation}, where Eqn.~\eqref{eqn:p_ni_ni_2channel}, ~\eqref{eqn:modified_three_channel_noise}, and \eqref{eqn:modified_p_ni_ni_3channel} are coded.
@@ -180,7 +180,6 @@ As shown in the figure, the predicted PSDs (shown in green dashed and dotted bla
 Here, we emphasize that using the two-channel method to predict self noise of sensor 3 is not a valid attempt as the other sensors don't have the same sensor dynamics and noise spectral density.
 Hence, the green dashed line on the bottom left in Fig.~\ref{fig:noiseestimationusingcorrelationmethods} might be a fluke.
 We used the same method to predict sensor noise 1 using sensor 3 as a correlated sensor and the prediction was clearly off (See the notebook for a figure).
-\newpage
 
 \subsection{Frequency series fitting using mathematical optimization}
 In this section, we will be discussing how to model frequency series using optimization methods.
@@ -200,6 +199,7 @@ But, we can still estimate the sensor noise via a curve fitting procedure, if we
 An example of this situation would be a sensor that measures a damped sinusoidal, i.e.
 \begin{equation}
 	y(t) = x(t) + n(t) = C\Re{\left(e^{\sigma+i\omega_n t}\right)} + n(t)\,,
+	\label{eqn:sensor_readout_damp_sinusoidal}
 \end{equation}
 where $x(t) = C\Re{\left(e^{\sigma+i\omega_n t}\right)}$ is the signal, $C$ is a real number, $\sigma$ is a negative real number, $\omega_n$ is the oscillation frequency, and $n(t)$ is the sensor noise.
 In this case, the frequency spectrum of signal $x(t)$ is localized around $f=2\pi\omega_n$, while the frequency content of the sensor noise $n(t)$ spreads all frequencies, which is very typical for motion sensors in a suspension.
@@ -224,7 +224,7 @@ The fit can be as simple as a least squares fit, i.e. by minimizing the sum of e
 	\label{eqn:least_squares_cost_function}
 \end{equation}
 where $\theta$ is some model parameters of an arbitrary analytical function $B(m,\theta)$, $A(m)$ is the measurement data, $m$ is a common parametrization of the series $A$ and $B$, and $w(m)$ is a user-designed weighting of each data point (weighting function).
-Typical choice of $m$ could be time $t$, frequency $f$, or simply data index.
+Typical choices for $m$ could be time $t$, frequency $f$, or simply data index.
 Minimization of Eqn.~\eqref{eqn:least_squares_cost_function} will give you the optimal parameters $\theta^*$ such that the best fit of data $A$ is the model $B(\theta^*)$.
 
 We can use the least squares fit directly but this is not the best for fitting measurement data that is typically viewed in log or log-log plots, where the value of data points varies drastically in orders of magnitude.
@@ -248,14 +248,15 @@ To sum up, we have sensor data $\hat{Y}(f)$, which is an ASD (works for PSD as w
 We do so by minimizing the cost function
 \begin{equation}
 	\boxed{
-		J_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)=\sum_m^M\left[\log\hat{y}(f_m)-\log\hat{N}_\mathrm{model}(f_i, \theta_{\hat{N}_\mathrm{model}})\right]^2 w(f)^2
+		J_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)=\sum_m^M\left[\log\hat{Y}(f_m)-\log\hat{N}_\mathrm{model}(f_m, \theta_{\hat{N}_\mathrm{model}})\right]^2 w(f)^2
 	}\,,
+	\label{eqn:noise_cost_function}
 \end{equation}
-where the weighting function $w(f)$ is given in Eqn.~\eqref{eqn:weighting_function_frequency_bound}.
-The reason for using the log-error instead of the typical error is given in Sec.~\ref{sec:optimization_tips}.
+where the weighting function $w(f)$ is given in Eqn.~\eqref{eqn:weighting_function_frequency_bound} and $f_m$ are the frequencies where the measured PSD and the model are evaluated.
+The reason for using the log-error instead of the typical error is given in Sec.~\ref{sec:optimization_tips}, and will be obvious in the example section \ref{sec:curve_fitting_examples}.
 Minimization gives best-fit parameters
 \begin{equation}
-	\theta_{\hat{N}_\mathrm{model}}^*=\arg\min_{\theta_{\hat{N}_\mathrm{model}}} \hat{J}_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)\,,
+	\theta_{\hat{N}_\mathrm{model}}^*=\arg\min{\theta_{\hat{N}_\mathrm{model}}} \hat{J}_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)\,,
 \end{equation} such that the noise model $\hat{N}_\mathrm{model}\mleft(f;\theta_{\hat{N}_\mathrm{model}}^*\mright)$ becomes a best fit of the noise spectral density $\hat{N}(f)$.
 The minimization can be done using methods that will be discussed in Sec.~\ref{sec:optimization_tips}.
 \subsubsection{Transfer function modeling \label{sec:transfer_function_modeling}}
@@ -287,7 +288,12 @@ As a result, the best-fit model might fit measurement data at higher frequencies
 A simple resample of the data will redistribute the data uniformly across the log-frequency axis.
 
 \subsubsection{Examples \label{sec:curve_fitting_examples}}
-.
+\paragraph{Noise spectrum modeling}
+Here, we will demonstrate how to use optimization to minimize cost functions \eqref{eqn:least_squares_cost_function} and \eqref{eqn:noise_cost_function} to model a sensor noise ASD $\hat{N}(f)$.
+The notebook is available [here].
+We will assume a sensor readout $y(t)$ that follows Eqn.~\eqref{eqn:sensor_readout_damp_sinusoidal}, with a noise $n(t)$ that follows Eqn.~\eqref{eqn:noise_model}.
+We will add measurement noise uniformly drawn from $[-3, 3]\,\mathrm{dB}$ to the sensor readout $y(t)$.
+
 \subsection{Control matrices}
 \subsubsection{Sensing matrices}
 \subsubsection{Actuation matrices}
