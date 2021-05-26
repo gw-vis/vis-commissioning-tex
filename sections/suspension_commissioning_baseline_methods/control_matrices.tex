@@ -1,0 +1,44 @@
+\subsection{Control matrices}
+In this section, we will discuss how control matrices (sensor matrices and actuation matrices) can be derived, and how to fine tune them (diagonalization).
+
+As is discussed in Sec.~\ref{sec:suspension_commissioning_tasks_further_elaboration}, there are many sensors and actuators in a single stage of suspension.
+And in fact, sensors and actuators mostly come in pairs for KAGRA suspensions.
+For instance, at the preisolator stage, there are 3 linear variable differential transformers (LVDTs) (not counting inertial sensors), and 3 coil-magnetic actuators placed at close proximity to the LVDTs.
+Another example would be the intermediate-mass stage, which has 6 optical sensors and electromagnetic actuator (OSEMs) or photo-reflective displacement sensors (PS).
+One exception would be the optics stage which has four coil-magnetic actuators, while only have an optical lever that can measure displacements from 3 degrees of freedom (DoFs).
+In principle, the number of independent sensors, or I should say, readouts, decides the number of degrees of freedom that we can measure.
+The minimum number of sensors that is needed is at least the number of degrees of freedom that we want to measure.
+And, so this is equivalent to saying that, the maximum number of degrees of freedom that we can measure, is the maximum number of sensors.
+The same goes to actuators.
+
+Having sufficient number of sensors and actuators at a stage gives us the possibility to sense or actuate the motion at different DoFs of a stage.
+But, the sensors and actuators may not be aligned directly to the degrees of freedom that we would like to measure.
+For example, the LVDTs at the preisolator stage are located at the outer edge of the preisolator table, which is circular in shape so three LVDTs are sensing the tangential displacement of the preisolator table at three different angles (see \cite{all_of_the_vibration} for a simple figure).
+Therefore, the readouts must be transformed from the sensor basis to the basis that we would like to perform control.
+The same goes to actuation.
+This is done via control matrices.
+
+The desired basis is typically Cartesian (longitudinal, transverse, and vertical) with Euler angles (roll, pitch, yaw).
+The Cartesian basis is defined locally for each suspension, where longitudinal direction is typically the normal of the high-reflectivity (HR) side of the optics, vertical is up, and transverse is the direction such that the cross product of the longitudinal direction and transverse direction is vertical.
+As for the angles, roll, pitch, and yaw are defined as the angular displacements along the longitudinal, transverse, and vertical axis, respectively.
+These DoFs can be locally defined for each stages as well.
+For example, we would say IP yaw, IM yaw, and TM yaw, which are yaw at the preisolator, intermediate mass, and optics, respectively.
+But, in this section we will focus on stage-wise control matrices, i.e. not mixing sensor readouts from different stages.
+
+In a nutshell, here is how control matrices are derived for each stage.
+We express each sensor readout $y_i(t)$ as a superposition of the stage's displacements $x_j(t)$,
+\begin{equation}
+	y_i(t) = \sum_j C_{ij} x_j(t)\,,
+\end{equation}
+where $i=1,2,3,...,n$ where $n$ is the number of sensors, and $j=1,2,3,...,m$ where $m$ is the number of degrees of freedom $C_{ij}$ is the matrix elements of a matrix $\mathbf{C}$ and $\mathbf{C}\in \mathbb{R}^{n\times m}$.
+Then, the sensing matrix, defined by a conversion that maps the sensor readouts to the stage displacements, is simply
+\begin{equation}
+	\mathbf{C}_{\mathrm{sensing}} = \mathbf{C}^{-1}\,,
+\end{equation}
+where $\mathbf{C}_\mathrm{sensing} \in \mathbb{R}^{m\times n}$
+
+The same goes to actuation.
+Suppose we have actuation signals $u_i(t)$,
+\subsubsection{Sensing matrices}
+\subsubsection{Actuation matrices}
+\subsubsection{Frequency dependent matrices}

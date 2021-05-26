@@ -65,7 +65,7 @@ To sum up, we have sensor data $\hat{Y}(f)$, which is an ASD (works for PSD as w
 We do so by minimizing the cost function
 \begin{equation}
 	\boxed{
-		J_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)=\sum_m^M\left[\log\hat{Y}(f_m)-\log\hat{N}_\mathrm{model}(f_m, \theta_{\hat{N}_\mathrm{model}})\right]^2 w(f)^2
+		J_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)=\sum_m^M\left[\log\hat{Y}(f_m)-\log\hat{N}_\mathrm{model}(f_m, \theta_{\hat{N}_\mathrm{model}})\right]^2 w(f_m)^2
 	}\,,
 	\label{eqn:noise_cost_function}
 \end{equation}
@@ -73,7 +73,7 @@ where the weighting function $w(f)$ is given in Eqn.~\eqref{eqn:weighting_functi
 The reason for using the log error $\log\hat{Y}(f) - \log\hat{N}_\mathrm{model}(f;\theta_{\hat{N}_\mathrm{model}})$ instead of the typical error is given in Sec.~\ref{sec:optimization_tips}, and will be obvious in the example section \ref{sec:curve_fitting_examples}.
 Minimization gives best-fit parameters
 \begin{equation}
-	\theta_{\hat{N}_\mathrm{model}}^*=\arg\min{\theta_{\hat{N}_\mathrm{model}}} \hat{J}_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)\,,
+	\theta_{\hat{N}_\mathrm{model}}^*=\arg\min_{\theta_{\hat{N}_\mathrm{model}}} \hat{J}_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)\,,
 \end{equation} such that the noise model $\hat{N}_\mathrm{model}\mleft(f;\theta_{\hat{N}_\mathrm{model}}^*\mright)$ becomes a best fit of the noise spectral density $\hat{N}(f)$.
 The minimization can be done using methods that will be discussed in Sec.~\ref{sec:optimization_tips}.
 \subsubsection{Transfer function modeling \label{sec:transfer_function_modeling}}
@@ -122,16 +122,16 @@ The noise spectral density is
 	\hat{N}(f) = \left[\left(\frac{N_{3.5}}{f^{3.5}}\right)^2+\left(\frac{N_1}{f^1}\right)^2\right]^\frac{1}{2}\,,
 \end{equation}
 where $N_{3.5}=\left(5\times10^{-7}\right)^\frac{1}{2}$ and $N_1=\left(1\times10^{-7}\right)^\frac{1}{2}$.
-This these frequency dependencies ($-3.5$ and $-1$) are chosen to mimic the behavior of the geophone noise.
+These frequency dependencies ($-3.5$ and $-1$) are chosen to mimic the behavior of the geophone noise.
 This kind of sensor noise profiles has large amplitude variations at different frequencies so it can be used as a benchmark problem for noise modeling.
 So, the ASD of the sensor readout, in $\mathrm{dB}$ is
 \begin{equation}
-	20\log\hat{Y}(f) = 20\log\left[\hat{X}(f)^2 + \hat{N}(f)^2\right]^\frac{1}{2} + U(-3, 3)\,,
+	20\log\hat{Y}(f) = 20\log\left[\hat{X}(f)^2 + \hat{N}(f)^2\right]^\frac{1}{2} + \mathcal{U}(-3, 3)\,,
 \end{equation}
-where $U(a,b)$ is a random series drawn from a uniform distribution between $a$ and $b$.
+where $\mathcal{U}(a,b)$ is a random series drawn from a uniform distribution between $a$ and $b$.
 
 In reality, the only information we have is the sensor readout $\hat{Y}(f)$, as given by the green curve shown in Fig.~\ref{fig:tutorialsnoisespectrummodelingwithoptimization10}.
-From the plot, we see a peek feature around $0.7 ~ 2\,\mathrm{Hz}$, which indicates the presence of the signal $x(t)$.
+From the plot, we see a peek feature around $0.7 - 2\,\mathrm{Hz}$, which indicates the presence of the signal $x(t)$.
 This is something that we do not wish to model.
 Hence, we set the weighting function
 \begin{equation}
@@ -175,3 +175,7 @@ For all these results, we used \verb|scipy.optimize.minimize()|, with default se
 We emphasize that all these four configuration may perform equally well if we further tweak the optimization parameters in \verb|scipy.optimize.minimize()|, or using different optimization algorithms.
 There are many optimization tweaks that can improve the fitting performance, but we won't discuss here.
 The results shown in Fig.~\ref{fig:tutorialsnoisespectrummodelingwithoptimization80} only serves as a demonstration of how a careful design of the model and the cost functions can yield better results under the same settings.
+
+\paragraph{Transfer function modeling}
+
+Pending.
