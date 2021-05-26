@@ -28,9 +28,10 @@ But, in this section we will focus on stage-wise control matrices, i.e. not mixi
 In a nutshell, here is how control matrices are derived for each stage.
 We express each sensor readout $y_i(t)$ as a superposition of the stage's displacements $x_j(t)$,
 \begin{equation}
-	y_i(t) = \sum_j C_{ij} x_j(t)\,,
+	y_i(t) = \sum_j^m C_{ij} x_j(t)\,,
 \end{equation}
-where $i=1,2,3,...,n$ where $n$ is the number of sensors, and $j=1,2,3,...,m$ where $m$ is the number of degrees of freedom $C_{ij}$ is the matrix elements of a matrix $\mathbf{C}$ and $\mathbf{C}\in \mathbb{R}^{n\times m}$.
+where $i=1,2,3,...,n$ where $n$ is the number of sensors, and $j=1,2,3,...,m$ where $m$ is the number of degrees of freedom, $C_{ij}$ is the matrix elements of a matrix $\mathbf{C}$ and $\mathbf{C}\in \mathbb{R}^{n\times m}$.
+$C_{ij}$ is the coupling coefficient of displacements $x_j(t)$ to sensor  $y_i(t)$
 Then, the sensing matrix, defined by a conversion that maps the sensor readouts to the stage displacements, is simply
 \begin{equation}
 	\mathbf{C}_{\mathrm{sensing}} = \mathbf{C}^{-1}\,,
@@ -38,7 +39,31 @@ Then, the sensing matrix, defined by a conversion that maps the sensor readouts 
 where $\mathbf{C}_\mathrm{sensing} \in \mathbb{R}^{m\times n}$
 
 The same goes to actuation.
-Suppose we have actuation signals $u_i(t)$,
-\subsubsection{Sensing matrices}
-\subsubsection{Actuation matrices}
-\subsubsection{Frequency dependent matrices}
+Suppose we have actuation signals $u_i(t)$ injected to the $i^\mathrm{th}$ actuator.
+Since the actuators are not purely acting on a single DoF, the actuation signal reads (at DC only, at higher frequencies there's phase shift. To be discussed in Sec.~\ref{sec:control_matrices_frequency_dependent_matrices}),
+\begin{equation}
+	u_i(t) = \sum_j^m D_{ij} x_j(t)\,,
+\end{equation}
+where $i=1,2,3,...,n$ where $n$ is the number of actuators, $j=1,2,3,...,m$ where $m$ is the number of DoFs, and $D_{ij}$ is the matrix elements of a matrix $\mathbf{D}$ and $\mathbf{D}\in \mathbb{R}^{n\times m}$.
+Here, different from $C_{ij}$, the scale of $D_{ij}$ doesn't not matter, so long as the row vectors $D_{ij}$ has a direction parallel to the actuation.
+Again, the actuation matrix, defined by the matrix mapping the actuation to the stage displacements, is simply
+\begin{equation}
+	\mathbf{D}_\mathrm{actuation} = \mathbf{D}^{-1}\,,
+\end{equation}
+and $\mathbf{D}_\mathrm{actuation}\in\mathbb{R}^{m\times n}$.
+
+Now, initial control matrices can be determined from the location and orientation, i.e. from geometry, of the sensors and actuators with respect to the stage.
+\cite{sr_suspension_diagonalization} and \cite{bs_suspension_diagonalization} gives detailed calculation of the actuation and sensing matrices for the SR suspensions and BS suspensions for all stages, except sensing for the optics stage.
+The sensing of the optics stage utilizes an optical lever setup and the derivation is more involved.
+The derivation of the initial sensing matrix of optical levers are given in \cite{sensing_matrices_oplev}.
+Details of these initial control matrices will be be discussed here.
+
+Having the initial matrices may not be sufficient as residual cross-couplings may still remain.
+In Sec.~\ref{sec:control_matrices_sensing_matrices}, we will discuss how to modify the sensing matrices so each sensor readout measures one pure DoF.
+In Sec.~\ref{sec:control_matrices_actuation_matrices}, we will discuss how to modify the actuation matrices so each actuation signal purely moves the stage in one direction (at one paricular frequency only).
+In Sec.~\ref{sec:control_matrices_frequency_dependent_matrices}, we will discuss a more general actuation matrix, which is a transfer function matrix, i.e. frequency dependency.
+These methods are referred to sensor and actuation ``diagonalization'' in KAGRA.
+
+\subsubsection{Sensing matrices \label{sec:control_matrices_sensing_matrices}}
+\subsubsection{Actuation matrices \label{sec:control_matrices_actuation_matrices}}
+\subsubsection{Frequency dependent matrices \label{sec:control_matrices_frequency_dependent_matrices}}
