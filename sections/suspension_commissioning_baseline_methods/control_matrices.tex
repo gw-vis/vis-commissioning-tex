@@ -36,7 +36,7 @@ Then, the sensing matrix, defined by a conversion that maps the sensor readouts 
 \begin{equation}
 	\mathbf{C}_{\mathrm{sensing}} = \mathbf{C}^{-1}\,,
 \end{equation}
-where $\mathbf{C}_\mathrm{sensing} \in \mathbb{R}^{m\times n}$
+where $\mathbf{C}_\mathrm{sensing} \in \mathbb{R}^{m\times n}$, such that $\mathbf{x}(t) = \mathbf{C}_\mathrm{sensing}\mathbf{y}(t)$.
 
 The same goes to actuation.
 Suppose we have actuation signals $u_i(t)$ injected to the $i^\mathrm{th}$ actuator.
@@ -50,7 +50,7 @@ Again, the actuation matrix, defined by the matrix mapping the actuation to the 
 \begin{equation}
 	\mathbf{D}_\mathrm{actuation} = \mathbf{D}^{-1}\,,
 \end{equation}
-and $\mathbf{D}_\mathrm{actuation}\in\mathbb{R}^{m\times n}$.
+and $\mathbf{D}_\mathrm{actuation}\in\mathbb{R}^{m\times n}$, such that $\mathbf{x}(t) = \mathbf{D}_\mathrm{actuation}\mathbf{u}(t)$.
 
 Now, initial control matrices can be determined from the location and orientation, i.e. from geometry, of the sensors and actuators with respect to the stage.
 \cite{sr_suspension_diagonalization} and \cite{bs_suspension_diagonalization} gives detailed calculation of the actuation and sensing matrices for the SR suspensions and BS suspensions for all stages, except sensing for the optics stage.
@@ -64,6 +64,22 @@ In Sec.~\ref{sec:control_matrices_actuation_matrices}, we will discuss how to mo
 In Sec.~\ref{sec:control_matrices_frequency_dependent_matrices}, we will discuss a more general actuation matrix, which is a transfer function matrix, i.e. frequency dependency.
 These methods are referred to sensor and actuation ``diagonalization'' in KAGRA.
 
+
 \subsubsection{Sensing matrices \label{sec:control_matrices_sensing_matrices}}
+Sensor and actuation diagonalization are two separate procedures but sensor diagonalization must happen before actuation diagonalization, as it depends on the sensing readouts.
+When sensor diagonalization is performed, the actuators should be re-diagonalized if it was done with a different sensing matrix.
+Now, let's say we have raw sensing signals $\mathbf{y}(t)=y_i(t)$, where $i=1,2,3,...,n$, and $n$ is the number of sensors we have.
+These signals are what the sensors measure.
+They can be raw voltage, or calibrated in some sort of displacement units.
+We have a initial sensing matrix $\mathbf{C}_\mathrm{sensing}^\mathrm{initial}$ that we derived from the geometric location and the orientation of the sensors.
+Hence, we have some displacement readouts
+\begin{equation}
+	\mathbf{x}_\mathrm{readout}(t)=\mathbf{C}_\mathrm{sensing}^\mathrm{initial}\mathbf{y}(t)=\mathbf{C}_\mathrm{coupling}\mathbf{x}(t)\approxeq\mathbf{x}(t)\,,
+\end{equation}
+where $\mathbf{x}(t)$ is the displacements of the suspensions that we would like to measure and $\mathbf{C}_\mathrm{coupling}$ is a coupling matrix, with off-diagonal terms being the cross-coupling coefficients.
+
+If the initial sensing matrix is perfect, then the coupling matrix $\mathbf{C}_\mathrm{coupling}$ will be the identity matrix $\mathbf{I}$ such that $\mathbf{x}_\mathrm{readout}(t)=\mathbf{x}(t)$.
+But, in general, this is not the case.
+
 \subsubsection{Actuation matrices \label{sec:control_matrices_actuation_matrices}}
 \subsubsection{Frequency dependent matrices \label{sec:control_matrices_frequency_dependent_matrices}}
