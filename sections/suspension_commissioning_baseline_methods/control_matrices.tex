@@ -80,6 +80,43 @@ where $\mathbf{x}(t)$ is the displacements of the suspensions that we would like
 
 If the initial sensing matrix is perfect, then the coupling matrix $\mathbf{C}_\mathrm{coupling}$ will be the identity matrix $\mathbf{I}$ such that $\mathbf{x}_\mathrm{readout}(t)=\mathbf{x}(t)$.
 But, in general, this is not the case.
+If the off-diagonal elements in the coupling matrix are not zero, then the displacement readouts $\mathbf{x}_\mathrm{readout}(t)$ are cross-coupled.
+To decouple the readouts, we simply need to modify the sensing matrix such that
+\begin{equation}
+	\boxed{
+		\mathbf{C}_\mathrm{sensing} = \mathbf{C}_\mathrm{coupling}^{-1} \mathbf{C}_\mathrm{sensing}^\mathrm{initial}
+}\ .
+	\label{eqn:sensing_matrix_diagonalization}
+\end{equation}
+Depending on the suspensions' real-time model architecture, this can be done by multiplying an addition matrix after the initial sensing matrix, or it can be done by simply modifying the existing matrix.
+
+To measure the coupling matrix $\mathbf{C}_\mathrm{coupling}$, we have to rely on resonance features of the suspension.
+Some resonant modes of the suspension only involve a single direction.
+If these modes have distinguishable frequencies from other modes, then we can estimate the off-diagonal coupling coefficients ratios between the $i^\mathrm{th}$ readout and $j^\mathrm{th}$ readout,
+\begin{equation}
+	\boxed{
+		C_{\mathrm{coupling}, ij}=
+		\begin{cases}
+			\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j} & ,\,\angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\vert_{f=f_j}\approx 0\\
+			-\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j} & ,\,\angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\rvert_{f=f_j}\approx \pm \pi\\
+		\end{cases}
+	}\ ,
+\end{equation}
+where $f_j$ is the resonance frequency of the $x_j$ degree of freedom and $X_{\mathrm{readout},i}(s)$ is the Laplace transform of the $i^\mathrm{th}$ readout of $\mathbf{x}_\mathrm{readout}(t)$.
+And note here we have explicitly specify the $s$ dependency to distinguish transfer functions and matrices.
+
+Here, a few assumptions are made.
+First of all, assume that the suspension stages are oscillating to the extent the peaks in the spectrum are high enough for us to measure coupling ratios, or to say that the coupling ratios are small.
+So, the suspensions must be excite via external actuation, typically using the actuators.
+There're two ways this can be done, 1) we can use the actuators to give a ``kick'' to the suspension, i.e. impulse input, so it freely swings in damped oscillation or 2) we can inject white noise actuation to excite the modes.
+Mathematically, the resulting spectrum should be the same, as an impulse input is effectively white noise in the frequency domain.
+But, the white noise actuation might be easier to implement, as the damped oscillation excited by the impulse may result in low SNR towards steady-state.
+Secondly, we assume that the sensors are calibrated such that the diagonal terms of the coupling matrix are ones.
+Thirdly, we assume that the coupling ratios measured are purely due to linear readout cross-coupling so, if there's cross-coupling, the ratio between the readouts at resonance frequencies must have a 0 relative or $\pm \pi$ phase.
+If the ratios has a phase that is not close to 0 or $\pm \pi$ but the magnitude of the ratios are not small, this would mean that the results are not conclusive so we should not assign the ratio to the coupling matrix.
+This could happen due to low SNR, mechanical coupling, or other reasons that are not yet clearly studied.
+Unless the reason is known, we should not remove these spurious cross-couplings as it would be overcompensating.
 
 \subsubsection{Actuation matrices \label{sec:control_matrices_actuation_matrices}}
+
 \subsubsection{Frequency dependent matrices \label{sec:control_matrices_frequency_dependent_matrices}}
