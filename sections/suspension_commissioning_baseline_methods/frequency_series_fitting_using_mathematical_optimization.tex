@@ -51,10 +51,9 @@ As for the weighting function $w(f)$ (now as a function of frequency), an easy c
 \begin{equation}
 	w(f)=
 	\begin{cases}
-		0 &,\, f_\mathrm{lower}<f<f_\mathrm{upper} \\
-		1 &,\, \textit{otherwise}
+		0 &\text{if } f_\mathrm{lower}<f<f_\mathrm{upper}\,,\\
+		1 &\text{otherwise}\,,
 	\end{cases}
-	\,,
 	\label{eqn:weighting_function_frequency_bound}
 \end{equation}
 where $\left(f_\mathrm{lower},f_\mathrm{upper}\right)$ is a frequency bound that encloses frequency regions that has high SNR, indicated by the peak feature.
@@ -137,10 +136,9 @@ Hence, we set the weighting function
 \begin{equation}
 	w(f)=
 	\begin{cases}
-		0 & ,\,0.7<f<2\,\mathrm{Hz}\\
-		1 & , otherwise.
+		0 & \text{if }0.7<f<2\,\mathrm{Hz}\,,\\
+		1 & \text{otherwise}\,,
 	\end{cases}
-	\,,
 \end{equation}
 so it filters out the part of the readout that we don't wish to model.
 \begin{figure}[!h]

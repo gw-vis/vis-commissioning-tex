@@ -34,7 +34,7 @@ where $i=1,2,3,...,n$ where $n$ is the number of sensors, and $j=1,2,3,...,m$ wh
 $C_{ij}$ is the coupling coefficient of displacements $x_j(t)$ to sensor  $y_i(t)$
 Then, the sensing matrix, defined by a conversion that maps the sensor readouts to the stage displacements, is simply
 \begin{equation}
-	\mathbf{C}_{\mathrm{sensing}} = \mathbf{C}^{-1}\,,
+	\mathbf{C}_{\mathrm{sensing}} = \mathbf{C}^{\dagger}\,,
 \end{equation}
 where $\mathbf{C}_\mathrm{sensing} \in \mathbb{R}^{m\times n}$, such that $\mathbf{x}(t) = \mathbf{C}_\mathrm{sensing}\mathbf{y}(t)$.
 
@@ -48,14 +48,14 @@ where $i=1,2,3,...,n$ where $n$ is the number of actuators, $j=1,2,3,...,m$ wher
 Here, different from $C_{ij}$, the scale of $D_{ij}$ doesn't not matter, so long as the row vectors $D_{ij}$ has a direction parallel to the actuation.
 Again, the actuation matrix, defined by the matrix mapping the actuation to the stage displacements, is simply
 \begin{equation}
-	\mathbf{D}_\mathrm{actuation} = \mathbf{D}^{-1}\,,
+	\mathbf{D}_\mathrm{actuation} = \mathbf{D}^{\dagger}\,,
 \end{equation}
 and $\mathbf{D}_\mathrm{actuation}\in\mathbb{R}^{m\times n}$, such that $\mathbf{x}(t) = \mathbf{D}_\mathrm{actuation}\mathbf{u}(t)$.
 
 Now, initial control matrices can be determined from the location and orientation, i.e. from geometry, of the sensors and actuators with respect to the stage.
 \cite{sr_suspension_diagonalization} and \cite{bs_suspension_diagonalization} gives detailed calculation of the actuation and sensing matrices for the SR suspensions and BS suspensions for all stages, except sensing for the optics stage.
 The sensing of the optics stage utilizes an optical lever setup and the derivation is more involved.
-The derivation of the initial sensing matrix of optical levers are given in \cite{sensing_matrices_oplev}.
+The derivation of the initial sensing matrix of optical levers is given in \cite{sensing_matrices_oplev}.
 Details of these initial control matrices will be be discussed here.
 
 Having the initial matrices may not be sufficient as residual cross-couplings may still remain.
@@ -66,7 +66,7 @@ These methods are referred to sensor and actuation ``diagonalization'' in KAGRA.
 
 
 \subsubsection{Sensing matrices \label{sec:control_matrices_sensing_matrices}}
-Sensor and actuation diagonalization are two separate procedures but sensor diagonalization must happen before actuation diagonalization, as it depends on the sensing readouts.
+Sensor and actuation diagonalization are two separate procedures but, as we shall we, sensor diagonalization must happen before actuation diagonalization, as it depends on the sensing readouts.
 When sensor diagonalization is performed, the actuators should be re-diagonalized if it was done with a different sensing matrix.
 Now, let's say we have raw sensing signals $\mathbf{y}(t)=y_i(t)$, where $i=1,2,3,...,n$, and $n$ is the number of sensors we have.
 These signals are what the sensors measure.
@@ -80,11 +80,11 @@ where $\mathbf{x}(t)$ is the displacements of the suspensions that we would like
 
 If the initial sensing matrix is perfect, then the coupling matrix $\mathbf{C}_\mathrm{coupling}$ will be the identity matrix $\mathbf{I}$ such that $\mathbf{x}_\mathrm{readout}(t)=\mathbf{x}(t)$.
 But, in general, this is not the case.
-If the off-diagonal elements in the coupling matrix are not zero, then the displacement readouts $\mathbf{x}_\mathrm{readout}(t)$ are cross-coupled.
+If the off-diagonal elements in the coupling matrix are not zero, then the displacement readouts $\mathbf{x}_\mathrm{readout}(t)$ are cross-coupled, and the goal of diagonalization is to adjust the sensing matrix so individual readout is only coupling to one degree of freedom.
 To decouple the readouts, we simply need to modify the sensing matrix such that
 \begin{equation}
 	\boxed{
-		\mathbf{C}_\mathrm{sensing} = \mathbf{C}_\mathrm{coupling}^{-1} \mathbf{C}_\mathrm{sensing}^\mathrm{initial}
+		\mathbf{C}_\mathrm{sensing} = \left(\mathbf{C}_\mathrm{coupling}\right)^{-1} \mathbf{C}_\mathrm{sensing}^\mathrm{initial}
 }\ .
 	\label{eqn:sensing_matrix_diagonalization}
 \end{equation}
@@ -97,8 +97,8 @@ If these modes have distinguishable frequencies from other modes, then we can es
 	\boxed{
 		C_{\mathrm{coupling}, ij}=
 		\begin{cases}
-			\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j} & ,\,\angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\vert_{f=f_j}\approx 0\\
-			-\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j} & ,\,\angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\rvert_{f=f_j}\approx \pm \pi\\
+			\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j}\,, & \angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\vert_{f=f_j}\approx 0\\
+			-\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j}\,, & \angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\rvert_{f=f_j}\approx \pm \pi\\
 		\end{cases}
 	}\ ,
 \end{equation}
@@ -118,5 +118,89 @@ This could happen due to low SNR, mechanical coupling, or other reasons that are
 Unless the reason is known, we should not remove these spurious cross-couplings as it would be overcompensating.
 
 \subsubsection{Actuation matrices \label{sec:control_matrices_actuation_matrices}}
+The idea for actuation diagonalization is similar to that of sensor diagonalization but with some minor differences.
+
+Let's say we have raw actuation signals $\mathbf{u}(t)$ and displacements $\mathbf{x}(t)$.
+These raw actuation signals are voltage or ``counts'' applied to the actuators, and the $\mathbf{u}(t)$ frame is in the actuator frame, which is not aligned to the displacements $\mathbf{x}$.
+We wish to have actuations signals $\mathbf{u}_\mathbf{x}(t)$ that are parallel to the displacements $\mathbf{x}(t)$.
+So $\mathbf{u}_\mathbf{x}(t)$ is something like actuation signal in longitudinal, transverse, ..., etc, and this is the variable that the control system manupulates.
+Whereas, the raw actuation signal $\mathbf{u}(t)$ is like actuation in first actuator, second actuator, ..., etc.
+The actuation signals need to be converted back to the raw actuation signals via multiplying the actuation signals by the actuation matrix, i.e.
+\begin{equation}
+	\mathbf{u}(t)=\mathbf{D}_\mathrm{actuation}\mathbf{u}_\mathbf{x}(t)\,,
+\end{equation}
+where $\mathbf{D}_\mathrm{actuation}$ is the actuation matrix.
+
+Now, let's say we have initial actuation matrix $\mathbf{D}_\mathrm{actuation} = \mathbf{D}_\mathrm{actuation}^\mathrm{initial}$.
+If the actuation is not diagonalized, the displacement due to actuation signals reads
+\begin{equation}
+	\mathbf{x}(t) = \mathbf{D}_\mathrm{coupling}\mathbf{u}_\mathbf{x}(t) \,,
+	\label{eqn:coupled_displacement_actuation}
+\end{equation}
+where $\mathrm{D}_\mathrm{coupling}$ is the coupling matrix due to actuation.
+The diagonal elements of $\mathbf{D}_\mathrm{coupling}$ are the actuation efficiencies, i.e. the transfer function gain from actuation to displacement.
+Here, it would be tempting to multiply the actuation signal by a matrix $\left(\mathbf{D}_\mathrm{coupling}\right)^{-1}$, such that
+\begin{equation}
+	\mathbf{x}(t)=\mathbf{D}_\mathrm{coupling}\left(\mathbf{D}_\mathrm{coupling}\right)^{-1} \mathbf{u}_\mathbf{x}(t)\,.
+\end{equation}
+This will diagonalization the actuation, but it is not the ideal approach.
+This is because this will make the actuation efficiencies from $\mathbf{u}_\mathbf{x}(t)$ to $\mathbf{x}(t)$ identically ones.
+This may cause problems practically as we might want to compare actuation efficiencies or actuation transfer functions from previous measurements.
+So instead, it follows that if we multiple the actuation signals $\mathbf{u}_\mathbf{x}(t)$ by $\left(\mathbf{D}_\mathrm{coupling}\right)^{-1}\mathbf{D}_\mathrm{efficiency}$ before converting to the raw actuation signals via the initial actuation matrix  $\mathbf{D}_\mathrm{actuation}^\mathrm{initial}$, then the actuation-displacement relation becomes
+\begin{equation}
+	\mathbf{x}(t) = \mathbf{D}_\mathrm{coupling}\left[\left(\mathbf{D}_\mathrm{coupling}\right)^{-1}\mathbf{D}_\mathrm{efficiency}\right]\mathbf{u}_\mathbf{x}(t)\,,
+	\label{eqn:actuation_displacement_relation_diagonalized}
+\end{equation}
+where $\mathbf{D}_\mathrm{efficiency}$ is a diagonal matrix with elements being the actuation efficiencies at which the coupling matrix was measured.
+The actuation efficiency matrix $\mathbf{D}_\mathrm{efficiency}$ is a free parameter that we can set.
+So, for initial setup of the suspensions, this can be any arbitrary desired values.
+However, for diagonalization, it's better to maintain the static gain of the actuation transfer functions, i.e. maintaining the previous actuation efficiencies.
+This is equivalent to saying that we should set the actuation efficiency matrix to the diagonal elements of the actuation coupling matrix $\mathbf{D}_\mathrm{coupling}$
+\begin{equation}
+	\mathbf{D}_\mathrm{efficiency} = \text{diag}\left(\mathbf{D}_\mathrm{coupling}\right)\,.
+\end{equation}
+
+Now, coming back to the actuation matrix $\mathbf{D}_\mathrm{actuation}$.
+If we must modify the actuation matrix for diagonalization (alternatively we can have matrices in between actuation signals and the initial actuation matrix in the system), then Eqn.~\eqref{eqn:actuation_displacement_relation_diagonalized} is equivalent to saying that we should modify the actuation matrix from the initial actuation matrix $\mathbf{D}_\mathrm{actuation}^\mathrm{initial}$ to
+\begin{equation}
+	\boxed{
+		\mathbf{D}_\mathrm{actuation} = \mathbf{D}_\mathrm{actuation}^\mathrm{initial} \left(\mathbf{D}_\mathrm{coupling}\right)^{-1} \mathbf{D}_\mathrm{efficiency}
+	}\ .
+	\label{eqn:actuation_matrix_diagonalized}
+\end{equation}
+
+To measure the actuation coupling, we need to measure the displacement $\mathbf{x}(t)$ due to actuation $\mathbf{u}_\mathbf{x}(t)$.
+However, to measure $\mathbf{x}(t)$, we can only rely on the sensing readout $\mathbf{x}_\mathrm{readout}(t)$ from Sec.~\ref{sec:control_matrices_sensing_matrices}.
+Therefore, it is important to complete sensor diagonalization before actuation diagnalization such that $\mathbf{x}_\mathrm{readout}(t)=\mathbf{x}(t)$
+Also, note that the level of diagonalization that actuation can achieve is at best the level of diagonalization of the sensors.
+To measure the actuation coupling matrix, we need to inject actuation signals, typically in the form of a DC offset or a sinusoidal single-frequency line injection.
+DC offset inject is good because it would mean that there's no relative-phase between actuation and displacement.
+If we choose to use a line injection, we must choose frequency at which both diagonal transfer functions and cross-transfer functions has $0$ or $\pm\pi$ phase.
+This is tricky because we can't measure the transfer function unless we diagonalize the actuation!
+Another way to approach this is to choose a frequency $f_\mathrm{inject}$ such that the measured $\frac{\mathbf{X}(s)}{\mathbf{U}_\mathbf{x}(s)}\big\rvert_{f=f_\mathrm{inject}}$ has $0$ or $\pm\pi$ phase.
+So, the actuation coupling matrix can be measured as
+\begin{equation}
+	\boxed{
+		D_{\mathrm{coupling}, ij} =
+		\begin{cases}
+			\left\lvert\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle\frac{X_{ii}(s)}{U_{\mathbf{x}, ii}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,\\
+			-\left\lvert\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle -\frac{X_{ii}(s)}{U_{\mathbf{x}, ii}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,
+		\end{cases}	
+}
+\end{equation}
+where $i,j = 1,2,3,...,n$ and $n$ is the degrees of freedom.
+
+Here, there's a few caveats.
+First of all, what we are doing here is \textbf{not} actually actuation diagonalization, instead, what we are trying to do is to align the actuators to the suspension stage's degrees of freedom.
+But, this alignment has frequency dependency, if the cross-transfer functions are not zero, which is generally true.
+This means what we cannot minimize actuation cross-coupling at all frequencies, except at a signal frequency, which is actually not that useful.
+The good thing is that actuation diagonalization is not that important for local damping control, if controls are all engaged for all DoFs.
+Actuation cross-coupling will be treated as disturbance from one DoF to another, and will be suppressed by active control.
+However, actuation coupling will become important when suspension control is not engaged, such as during interferometer locking or observation.
+Therefore, we need some way to actually diagnalize the actuations and this will be discussed in Sec.~\ref{sec:control_matrices_frequency_dependent_matrices}.
 
 \subsubsection{Frequency dependent matrices \label{sec:control_matrices_frequency_dependent_matrices}}
+\subsubsection{Examples}
+\paragraph{Sensor diagonalization}
+\paragraph{Actuation diagonalization}
+\paragraph{Frequency depended diagonalization}
