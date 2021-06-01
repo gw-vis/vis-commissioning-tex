@@ -97,10 +97,10 @@ If these modes have distinguishable frequencies from other modes, then we can es
 	\boxed{
 		C_{\mathrm{coupling}, ij}=
 		\begin{cases}
-			\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j}\,, & \angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\vert_{f=f_j}\approx 0\\
-			-\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j}\,, & \angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\rvert_{f=f_j}\approx \pm \pi\\
+			\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j}\,, & \angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\vert_{f=f_j}\approx 0\,,\\
+			-\left\lvert\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\right\rvert_{f=f_j}\,, & \angle\frac{X_{\mathrm{readout}, i}(s)}{X_{\mathrm{readout}, j}(s)}\Big\rvert_{f=f_j}\approx \pm \pi\,,\\
 		\end{cases}
-	}\ ,
+	}
 \end{equation}
 where $f_j$ is the resonance frequency of the $x_j$ degree of freedom and $X_{\mathrm{readout},i}(s)$ is the Laplace transform of the $i^\mathrm{th}$ readout of $\mathbf{x}_\mathrm{readout}(t)$.
 And note here we have explicitly specify the $s$ dependency to distinguish transfer functions and matrices.
@@ -183,8 +183,8 @@ So, the actuation coupling matrix can be measured as
 	\boxed{
 		D_{\mathrm{coupling}, ij} =
 		\begin{cases}
-			\left\lvert\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle\frac{X_{ii}(s)}{U_{\mathbf{x}, ii}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,\\
-			-\left\lvert\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{ij}(s)}{U_{\mathbf{x}, ij}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle -\frac{X_{ii}(s)}{U_{\mathbf{x}, ii}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,
+			\left\lvert\frac{X_{i}(s)}{U_{\mathbf{x}, j}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle\frac{X_{i}(s)}{U_{\mathbf{x}, i}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,\\
+			-\left\lvert\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle -\frac{X_{i}(s)}{U_{\mathbf{x}, i}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,
 		\end{cases}	
 }
 \end{equation}
@@ -200,7 +200,73 @@ However, actuation coupling will become important when suspension control is not
 Therefore, we need some way to actually diagnalize the actuations and this will be discussed in Sec.~\ref{sec:control_matrices_frequency_dependent_matrices}.
 
 \subsubsection{Frequency dependent matrices \label{sec:control_matrices_frequency_dependent_matrices}}
+As is discussed in Sec.~\ref{sec:control_matrices_actuation_matrices}, a scalar-valued actuation matrix is not useful for diagonalizing the actuators.
+With a scalar actuation matrix, the actuation can only be diagonalized at a single frequency so actuation signals in one DoF at other frequencies can still other DoFs.
+To correctly model the actuation system, we have to consider transfer function matrix, with input $\mathbf{U}_\mathbf{x}(s)=\left[U_{x_1}(s), U_{x_2}(s),...,U_{x_n}(s)\right]^T$ and output (displacement) $\mathbf{X}(s)=[X_1(s), X_2(s),..., X_n(s)]^T$, where $n$ is the number of  DoFs.
+The input-output relation can be written as
+\begin{equation}
+	\mathbf{X}(s) = \mathbf{P}(s)\mathbf{U}_\mathbf{x}(s)\,,
+\end{equation}
+where the actuation plant $\mathbf{P}(s)$, i.e. the transfer function matrix is
+\begin{equation}
+	\mathbf{P}(s)=
+	\begin{bmatrix}
+		P_{11}(s) & P_{12}(s) & \dots & P_{1n}(s)\\
+		P_{21}(s) & P_{22}(s) & \dots & P_{2n}(s)\\
+		\dots & \dots & \ddots & \vdots\\
+		P_{n1}(s) & P_{n2}(s) & \dots & P_{nn}(s)
+	\end{bmatrix}\,,
+\end{equation}
+where $P_{ij}(s)$ is the SISO transfer function from the $j^\mathrm{th}$ actuation $U_j(s)$ to $i^\mathrm{th}$ displacement $X_i(s)$, and note that $P$/$\mathbf{P}$ here means plant/path/transfer function, and \textbf{not} power spectral density.
+$\mathbf{P}(s)$ is the plant of the suspension and cannot be changed. 
+The idea of diagonalization is to multiply the actuation signals by a transfer function matrix, i.e. ``the'' actuation matrix, such that the resultant off-diagonal transfer functions (cross-transfer functions) are zero.
+Mathematically, we want to design an actuation matrix $\mathbf{D}_\mathrm{actuation}(s)$, such that
+\begin{equation}
+	\mathbf{X}(s) = \mathbf{P}(s)\mathbf{D}_\mathrm{actuation}(s)\mathbf{U}_\mathbf{x}(s)\,,
+\end{equation}
+and $\mathbf{P}(s)\mathbf{D}_\mathrm{actuation}(s)$ is a diagonal transfer function matrix, preferably with diagonal entries $P_{ii}(s)$.
+It follows that if we set
+\begin{equation}
+	\mathbf{D}_\mathrm{actuation}(s) = \mathbf{P}(s)^{-1}\text{diag}\left(\mathbf{P}(s)\right)\,,
+	\label{eqn:frequency_dependent_actuation_matrix}
+\end{equation}
+then we can obtain
+\begin{equation}
+	\begin{bmatrix}
+		X_1(s)\\
+		X_2(s)\\
+		\vdots\\
+		X_n(s)
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		P_{11}(s) &  &  & \\
+		& P_{22}(s) &  & \\
+		&&\ddots&\\
+		&&&P_{nn}(s)
+	\end{bmatrix}
+	\begin{bmatrix}
+		U_{x_1}(s)\\
+		U_{x_2}(s)\\
+		\vdots\\
+		U_{x_n}(s)
+	\end{bmatrix}
+	\,,
+\end{equation}
+which is exactly what we want, a diagonalized actuation plant.
+
+There are at least ways to obtain the actuation matrix using Eqn.~\eqref{eqn:frequency_dependent_actuation_matrix}.
+The first way is to measure the transfer functions $P_{ij}(s)$ as a complex-valued frequency series and then use a transfer function model to fit it using methods discussed in Sec.~\ref{sec:transfer_function_modeling}.
+With the analytical form of the transfer functions, we can construct the transfer function matrix by evaluating Eqn.~\eqref{eqn:frequency_dependent_actuation_matrix}.
+The calculation of the inverse of a transfer function matrix is rather involved as it's not easy to obtain the analytical form of the inverse.
+If the matrix is small, we can easily express individual elements of the inverse transfer function matrix as a combination of the elements of the transfer function matrix.
+However, this becomes tedious as the number of DoFs exceed 3,
+This brings us to the second way of obtaining the actuation matrix.
+Instead of modeling the individual transfer functions $P_{ij}(s)$, we take the frequency series of the transfer functions and then compute the inverse of the transfer function matrix at each frequency so we can obtain the actuation matrix as a complex-valued frequency series using Eqn.~\eqref{eqn:frequency_dependent_actuation_matrix}.
+From here, we can use transfer functions models to fit the individual elements $D_{ij}(s)$ using methods from Sec.~\ref{sec:transfer_function_modeling}. 
+
 \subsubsection{Examples}
+Pending
 \paragraph{Sensor diagonalization}
 \paragraph{Actuation diagonalization}
 \paragraph{Frequency depended diagonalization}
