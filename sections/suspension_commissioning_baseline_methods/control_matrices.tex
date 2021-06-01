@@ -260,10 +260,12 @@ The first way is to measure the transfer functions $P_{ij}(s)$ as a complex-valu
 With the analytical form of the transfer functions, we can construct the transfer function matrix by evaluating Eqn.~\eqref{eqn:frequency_dependent_actuation_matrix}.
 The calculation of the inverse of a transfer function matrix is rather involved as it's not easy to obtain the analytical form of the inverse.
 If the matrix is small, we can easily express individual elements of the inverse transfer function matrix as a combination of the elements of the transfer function matrix.
-However, this becomes tedious as the number of DoFs exceed 3,
-This brings us to the second way of obtaining the actuation matrix.
+However, this can become tedious as the number of DoFs exceed 3.
+Alternatively, we can use the \verb|inv()| function in MATLAB, which apparently works with transfer function matrix \cite{invert_models_matlab}.
+But, not every one can access MATLAB and we like open-source softwares like Python.
+So, this brings us to the second way of obtaining the actuation matrix.
 Instead of modeling the individual transfer functions $P_{ij}(s)$, we take the frequency series of the transfer functions and then compute the inverse of the transfer function matrix at each frequency so we can obtain the actuation matrix as a complex-valued frequency series using Eqn.~\eqref{eqn:frequency_dependent_actuation_matrix}.
-From here, we can use transfer functions models to fit the individual elements $D_{ij}(s)$ using methods from Sec.~\ref{sec:transfer_function_modeling}. 
+From here, we can use transfer functions models to fit the individual elements of $\mathbf{D}_\mathrm{actuation}(s)$ using methods from Sec.~\ref{sec:transfer_function_modeling}.
 
 \subsubsection{Examples}
 Pending
