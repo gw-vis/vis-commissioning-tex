@@ -15,7 +15,7 @@ and
 where $n_1(t)$ and $n_2(t)$ are the sensor noises of sensing readout $y_1(t)$ and $y_2(t)$, and $a_1$ and $a_2$ are constants that represents the calibration error.
 We cannot measure the calibration errors directly unless we have a third, well-calibrated sensor.
 So, for simplicity, let's assume $a_1=1$, and we only care about relative calibration error.
-The goal is to find a constant $k=k^*$, such that $y_1 - k^* y_2 = n_1-n_2$, or in other words, $k^* a_2 = 1$.
+The goal is to find a constant inter-calibration gain $k=k^*$, such that $y_1 - k^* y_2 = n_1-n_2$, or in other words, $k^* a_2 = 1$.
 To do so, one might be tempted to minimize the cost function
 \begin{equation}
 	J(k) = \left\langle \left[ y_1(t)-ky_2(t) \right]^2\right\rangle\,,
@@ -45,6 +45,7 @@ at
 	k = \frac{1}{a_2}\frac{\left\langle x(t)^2 \right\rangle}{\left\langle x(t)^2 \right\rangle + \left\langle n_2(t)^2 \right\rangle}\,,
 \end{equation}
 which is only correct when the SNR is high, i.e. $\left\langle x(t)^2 \right\rangle \gg \left\langle n_2(t)^2 \right\rangle$.
+Therefore, this cannot be used for a general case.
 
 Typically, the signal $x(t)$ is localized at certain frequencies so it's 
 To deal with low SNR signals, we consider the Laplace transform (frequency domain) of the signals instead.
@@ -74,17 +75,34 @@ A natural candidate of the weighing function would be the coherence function bet
 }
 \end{equation}
  where $C_{y_1y_2}(f)$ is the coherence function between the sensor readout $y_1(t)$ and $y_2(t)$.
+ Also note that the definition of coherence function is given in Eqn.~\eqref{eqn:coherence}.
  This is because a high coherence would indicate a high SNR data point, while low coherence would indicate a low SNR data point.
- We can also choose the weighing function to be 1 if the coherence exceeds certain threshold and 0 at other frequencies.
- This effectively masks out the data points with low SNR.
+ Althernatively, we can choose the weighing function to be 1 if the coherence exceeds certain threshold and 0 at other frequencies, i.e.
+ \begin{equation}
+ 	\boxed{
+ 		w(f) =
+ 		\begin{cases}
+ 			1\,, & C_{y_1y_2}(f) \geq C_\mathrm{threshold}\,, \\
+ 			0\,, & C_{y_1y_2}(f) < C_\mathrm{threshold}\,,
+ 		\end{cases}
+ }
+ \end{equation}
+where $C_\mathrm{threshold}$ is a threshold between 0 to 1.
+A reasonable value for $C_\mathrm{threshold}$ would be 0.5.
+Using this weighting function effectively masks out the data points with low SNR.
  
 Another interesting cost function to consider is
 \begin{equation}
-	J_\mathrm{log} (k) = \sum_f \log\left\lvert \frac{Y_1(s)}{kY_2(s)} \right\rvert w(f)\,,
+	\boxed{
+		J_\mathrm{log} (k) = \sum_f \left\lvert \log \frac{1}{k}\frac{Y_1(s)}{Y_2(s)} \right\rvert w(f)\,,
+	}
+	\label{eqn:cost_function_inter-calibration_log}
 \end{equation}
 since we often have measurements of the ratios between $Y_1(s)$ and $Y_2(s)$ as a transfer function measurement, but not individual $Y_1(s)$ and $Y_2(s)$.
-But here we need to take care of the sign so.
+Minimizing this cost function effectively says that we optimize $k$ such that the transfer function $\frac{1}{k}\frac{Y_1(s)}{Y_2(s)}$ is $1$, which can only happen when $k=k^*=1/a_2$, i.e. the desired inter-calibration gain.
 
+\subsubsection{Example}
+pending
 
 
 
