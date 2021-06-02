@@ -1,1 +1,91 @@
 \subsection{Inter-calibration}
+Inter-calibration is defined by the tasks that matches the calibration between two sensors.
+One example where inter-calibration would be useful is sensor correction (to be discussed in Sec.~\ref{sec:sensor_correction}) where the seismometer readout is used to cancel the seismic noise coupling in the relative displacement sensor readouts from the preisolator.
+Other usage would be to inter-calibrate the sensor readouts from different stages of a suspension for consistency, diagnosis, sensor fusion, or hierarchical control.
+
+Now, let's say we have two sensor readouts $y_1(t)$ and $y_2(t)$ measuring a common signal $x(t)$.
+So, assuming that the sensor dynamics is a constant (calibrated), the readouts read
+\begin{equation}
+	y_1(t) = a_1\left[x(t) + n_1(t)\right]\,,
+\end{equation}
+and
+\begin{equation}
+	y_2(t) = a_2\left[x(t) + n_2(t)\right]\,,
+\end{equation}
+where $n_1(t)$ and $n_2(t)$ are the sensor noises of sensing readout $y_1(t)$ and $y_2(t)$, and $a_1$ and $a_2$ are constants that represents the calibration error.
+We cannot measure the calibration errors directly unless we have a third, well-calibrated sensor.
+So, for simplicity, let's assume $a_1=1$, and we only care about relative calibration error.
+The goal is to find a constant $k=k^*$, such that $y_1 - k^* y_2 = n_1-n_2$, or in other words, $k^* a_2 = 1$.
+To do so, one might be tempted to minimize the cost function
+\begin{equation}
+	J(k) = \left\langle \left[ y_1(t)-ky_2(t) \right]^2\right\rangle\,,
+	\label{eqn:cost_function_inter-calibration}
+\end{equation}
+for $t={t_1,t_2,\dots,T}$, where $T$ is a very large number, and $\langle \cdot \rangle$ denotes the average.
+To see why this might work , we expand Eqn.~\eqref{eqn:cost_function_inter-calibration}
+\begin{equation}
+	\begin{split}
+		\left\langle \left[ y_1(t)-ky_2(t) \right]^2\right\rangle &= \left\langle \left[(1-ka_2)x(t) + n_1(t) - ka_2n_2(t) \right]^2 \right\rangle \\
+		&= \left(1-ka_2\right)^2\left\langle x(t)^2 \right\rangle + \left\langle n_1(t)^2 \right\rangle + \left(ka_2\right)^2\left\langle n_2(t)^2 \right\rangle \,,
+	\end{split}
+	\label{eqn:cost_function_inter-calibration_expanded}
+\end{equation}
+where we assumed $x(t)$, $n_1(t)$, and $n_2(t)$ are uncorrelated, zero-mean signals so the cross-terms are zero.
+Inspecting Eqn.~\eqref{eqn:cost_function_inter-calibration_expanded}, we see that the second term $\left\langle n_1(t)^2 \right\rangle$ is not minimizable so minimizing $J(k)$ is equivalent to minimzing
+\begin{equation}
+	J'(k) = \left(1-ka_2\right)^2\left\langle x(t)^2 \right\rangle + \left(ka_2\right)^2\left\langle n_2(t)^2 \right\rangle\,,
+	\label{eqn:cost_function_inter-calibration_equivalent}
+\end{equation} 
+which has a minimum of
+\begin{equation}
+	\min J'(k) = \frac{\left\langle x(t)^2 \right\rangle^2 \left\langle n_2(t)^2\right\rangle + \left\langle x(t)^2 \right\rangle \left\langle n_2(t)^2\right\rangle^2}{\left[\left\langle x(t)^2\right\rangle + \left\langle n_2(t)^2\right\rangle\right]^2}\,,
+\end{equation}
+at
+\begin{equation}
+	k = \frac{1}{a_2}\frac{\left\langle x(t)^2 \right\rangle}{\left\langle x(t)^2 \right\rangle + \left\langle n_2(t)^2 \right\rangle}\,,
+\end{equation}
+which is only correct when the SNR is high, i.e. $\left\langle x(t)^2 \right\rangle \gg \left\langle n_2(t)^2 \right\rangle$.
+
+Typically, the signal $x(t)$ is localized at certain frequencies so it's 
+To deal with low SNR signals, we consider the Laplace transform (frequency domain) of the signals instead.
+In Laplace domain, the sensor readouts read
+\begin{equation}
+	Y_1(s) = a_1X(s) + N_1(s)\,,
+\end{equation}
+and
+\begin{equation}
+	Y_2(s) = a_2X(s) + N_2(s)\,.
+\end{equation}
+Again, for simplicity we let $a_1 = 1$ and we want to find $k=k^*=1/a_2$.
+We do so by minimizing the cost function
+\begin{equation}
+	\boxed{
+		J_f (k) = \sum_{f} \left\lvert Y_1(s) - kY_2(s)\right\rvert w(f)
+	}\ ,
+	\label{eqn:cost_function_inter-calibration_frequency_domain}
+\end{equation}
+where $f$ is frequency, $s=i2\pi f$, $i$ is the imaginary number, $w(f)$ is a weighting function.
+Eqn.~\eqref{eqn:cost_function_inter-calibration_frequency_domain} is no different from Eqn.~\eqref{eqn:cost_function_inter-calibration} if the weighing function is equal to one at all frequencies $w(f)=1$.
+But, we can choose to weight individual data point a each frequency, and it makes sense to choose $w(f)$ such that the value is high at frequencies where the SNR is high.
+A natural candidate of the weighing function would be the coherence function between $y_1(t)$ and $y_2(t)$, so
+\begin{equation}
+	\boxed{
+		w(f) = C_{y_1y_2}(f)\,,
+}
+\end{equation}
+ where $C_{y_1y_2}(f)$ is the coherence function between the sensor readout $y_1(t)$ and $y_2(t)$.
+ This is because a high coherence would indicate a high SNR data point, while low coherence would indicate a low SNR data point.
+ We can also choose the weighing function to be 1 if the coherence exceeds certain threshold and 0 at other frequencies.
+ This effectively masks out the data points with low SNR.
+ 
+Another interesting cost function to consider is
+\begin{equation}
+	J_\mathrm{log} (k) = \sum_f \log\left\lvert \frac{Y_1(s)}{kY_2(s)} \right\rvert w(f)\,,
+\end{equation}
+since we often have measurements of the ratios between $Y_1(s)$ and $Y_2(s)$ as a transfer function measurement, but not individual $Y_1(s)$ and $Y_2(s)$.
+But here we need to take care of the sign so
+
+
+
+
+

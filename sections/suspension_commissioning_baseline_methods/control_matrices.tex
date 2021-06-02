@@ -30,7 +30,7 @@ We express each sensor readout $y_i(t)$ as a superposition of the stage's displa
 \begin{equation}
 	y_i(t) = \sum_j^m C_{ij} x_j(t)\,,
 \end{equation}
-where $i=1,2,3,...,n$ where $n$ is the number of sensors, and $j=1,2,3,...,m$ where $m$ is the number of degrees of freedom, $C_{ij}$ is the matrix elements of a matrix $\mathbf{C}$ and $\mathbf{C}\in \mathbb{R}^{n\times m}$.
+where $i=1,2,3,\dots,n$ where $n$ is the number of sensors, and $j=1,2,3,\dots,m$ where $m$ is the number of degrees of freedom, $C_{ij}$ is the matrix elements of a matrix $\mathbf{C}$ and $\mathbf{C}\in \mathbb{R}^{n\times m}$.
 $C_{ij}$ is the coupling coefficient of displacements $x_j(t)$ to sensor  $y_i(t)$
 Then, the sensing matrix, defined by a conversion that maps the sensor readouts to the stage displacements, is simply
 \begin{equation}
@@ -44,7 +44,7 @@ Since the actuators are not purely acting on a single DoF, the actuation signal 
 \begin{equation}
 	u_i(t) = \sum_j^m D_{ij} x_j(t)\,,
 \end{equation}
-where $i=1,2,3,...,n$ where $n$ is the number of actuators, $j=1,2,3,...,m$ where $m$ is the number of DoFs, and $D_{ij}$ is the matrix elements of a matrix $\mathbf{D}$ and $\mathbf{D}\in \mathbb{R}^{n\times m}$.
+where $i=1,2,3,\dots,n$ where $n$ is the number of actuators, $j=1,2,3,\dots,m$ where $m$ is the number of DoFs, and $D_{ij}$ is the matrix elements of a matrix $\mathbf{D}$ and $\mathbf{D}\in \mathbb{R}^{n\times m}$.
 Here, different from $C_{ij}$, the scale of $D_{ij}$ doesn't not matter, so long as the row vectors $D_{ij}$ has a direction parallel to the actuation.
 Again, the actuation matrix, defined by the matrix mapping the actuation to the stage displacements, is simply
 \begin{equation}
@@ -68,7 +68,7 @@ These methods are referred to sensor and actuation ``diagonalization'' in KAGRA.
 \subsubsection{Sensing matrices \label{sec:control_matrices_sensing_matrices}}
 Sensor and actuation diagonalization are two separate procedures but, as we shall we, sensor diagonalization must happen before actuation diagonalization, as it depends on the sensing readouts.
 When sensor diagonalization is performed, the actuators should be re-diagonalized if it was done with a different sensing matrix.
-Now, let's say we have raw sensing signals $\mathbf{y}(t)=y_i(t)$, where $i=1,2,3,...,n$, and $n$ is the number of sensors we have.
+Now, let's say we have raw sensing signals $\mathbf{y}(t)=y_i(t)$, where $i=1,2,3,\dots,n$, and $n$ is the number of sensors we have.
 These signals are what the sensors measure.
 They can be raw voltage, or calibrated in some sort of displacement units.
 We have a initial sensing matrix $\mathbf{C}_\mathrm{sensing}^\mathrm{initial}$ that we derived from the geometric location and the orientation of the sensors.
@@ -123,8 +123,8 @@ The idea for actuation diagonalization is similar to that of sensor diagonalizat
 Let's say we have raw actuation signals $\mathbf{u}(t)$ and displacements $\mathbf{x}(t)$.
 These raw actuation signals are voltage or ``counts'' applied to the actuators, and the $\mathbf{u}(t)$ frame is in the actuator frame, which is not aligned to the displacements $\mathbf{x}$.
 We wish to have actuations signals $\mathbf{u}_\mathbf{x}(t)$ that are parallel to the displacements $\mathbf{x}(t)$.
-So $\mathbf{u}_\mathbf{x}(t)$ is something like actuation signal in longitudinal, transverse, ..., etc, and this is the variable that the control system manupulates.
-Whereas, the raw actuation signal $\mathbf{u}(t)$ is like actuation in first actuator, second actuator, ..., etc.
+So $\mathbf{u}_\mathbf{x}(t)$ is something like actuation signal in longitudinal, transverse, \dots, etc, and this is the variable that the control system manupulates.
+Whereas, the raw actuation signal $\mathbf{u}(t)$ is like actuation in first actuator, second actuator, \dots, etc.
 The actuation signals need to be converted back to the raw actuation signals via multiplying the actuation signals by the actuation matrix, i.e.
 \begin{equation}
 	\mathbf{u}(t)=\mathbf{D}_\mathrm{actuation}\mathbf{u}_\mathbf{x}(t)\,,
@@ -184,11 +184,11 @@ So, the actuation coupling matrix can be measured as
 		D_{\mathrm{coupling}, ij} =
 		\begin{cases}
 			\left\lvert\frac{X_{i}(s)}{U_{\mathbf{x}, j}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle\frac{X_{i}(s)}{U_{\mathbf{x}, i}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,\\
-			-\left\lvert\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle -\frac{X_{i}(s)}{U_{\mathbf{x}, i}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,
+			-\left\lvert\frac{X_{i}(s)}{U_{\mathbf{x}, j}(s)}\right\rvert_{f=f_\mathrm{inject}}\,, & \angle\frac{X_{j}(s)}{U_{\mathbf{x}, j}(s)}\Big\rvert_{f=f_\mathrm{inject}} \approx \angle -\frac{X_{i}(s)}{U_{\mathbf{x}, i}(s)}\Big\rvert_{f=f_\mathrm{inject}}\,,
 		\end{cases}	
 }
 \end{equation}
-where $i,j = 1,2,3,...,n$ and $n$ is the degrees of freedom.
+where $i,j = 1,2,3,\dots,n$ and $n$ is the degrees of freedom.
 
 Here, there's a few caveats.
 First of all, what we are doing here is \textbf{not} actually actuation diagonalization, instead, what we are trying to do is to align the actuators to the suspension stage's degrees of freedom.
@@ -202,7 +202,7 @@ Therefore, we need some way to actually diagnalize the actuations and this will 
 \subsubsection{Frequency dependent matrices \label{sec:control_matrices_frequency_dependent_matrices}}
 As is discussed in Sec.~\ref{sec:control_matrices_actuation_matrices}, a scalar-valued actuation matrix is not useful for diagonalizing the actuators.
 With a scalar actuation matrix, the actuation can only be diagonalized at a single frequency so actuation signals in one DoF at other frequencies can still other DoFs.
-To correctly model the actuation system, we have to consider transfer function matrix, with input $\mathbf{U}_\mathbf{x}(s)=\left[U_{x_1}(s), U_{x_2}(s),...,U_{x_n}(s)\right]^T$ and output (displacement) $\mathbf{X}(s)=[X_1(s), X_2(s),..., X_n(s)]^T$, where $n$ is the number of  DoFs.
+To correctly model the actuation system, we have to consider transfer function matrix, with input $\mathbf{U}_\mathbf{x}(s)=\left[U_{x_1}(s), U_{x_2}(s),\dots,U_{x_n}(s)\right]^T$ and output (displacement) $\mathbf{X}(s)=[X_1(s), X_2(s),\dots, X_n(s)]^T$, where $n$ is the number of  DoFs.
 The input-output relation can be written as
 \begin{equation}
 	\mathbf{X}(s) = \mathbf{P}(s)\mathbf{U}_\mathbf{x}(s)\,,
@@ -271,4 +271,4 @@ From here, we can use transfer functions models to fit the individual elements o
 Pending
 \paragraph{Sensor diagonalization}
 \paragraph{Actuation diagonalization}
-\paragraph{Frequency depended diagonalization}
+\paragraph{Frequency dependent diagonalization}
