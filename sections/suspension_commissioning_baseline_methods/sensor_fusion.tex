@@ -1,5 +1,10 @@
 \subsection{Sensor fusion}
+As is discussed in Sec.~\ref{sec:suspension_commissioning_tasks_further_elaboration}, sensing noise is a limit of the control performance of the suspensions, and it dictates the best possible performance that we can obtain.
+Therefore, it's very important to minimize the sensor noise as much as possible and as early as possible since controller design depends on the sensing noise.
+One method that is used in KAGRA for minimizing sensor noise is sensor fusion.
 Sensor fusion is a technique that combines multiple sensors into a virtual ``super sensor'' that has better performance compared to that of the individual sensors.
+The sensors are measuring the a common signal but has different noise characteristics.
+
 In KAGRA, sensor fusion is used mostly for the preisolator, where active seismic isolation is critical.
 In particular, LVDTs and Geophones are blended using complementary filters so the displacement readouts at the preisolator benefits from the advantages from the goephones (seismic noise-free and low sensor noise at higher frequencies) and LVDTs (low sensor noise at lower frequencies).
 Sensor correction is used to remove the seismic noise coupling from the LVDT readouts at the preisolator using the seismometer readout.
@@ -8,6 +13,8 @@ For optimal performance, sensor correction should be considered as a complementa
 But, sensor correction was not conventionally considered this way during the first attempt in KAGRA \cite{sensor_correction_gain_tuning, comment_to_sensor_correction_gain_tuning}.
 Instead, sensor correction filters were constructed as a high-pass filter using heuristics.
 So, we will make a distinction between complementary filter problems and sensor correction filters in this section.
+Also, note that, before sensor any sensor fusion tasks, the sensors involved must be inter-calibrated so to avoid weird calibration mismatch.
+The inter-calibration techniques are given in Sec.~\ref{sec:inter-calibration}.
 
 This section is organized as follows.
 In Sec.~\ref{sec:complementary_filter}, we will discuss some predefined complementary filters and how to design and optimize the filter parameters.
@@ -15,6 +22,32 @@ In Sec.~\ref{sec:sensor_correction}, we will introduce the purpose of sensor cor
 In Sec.~\ref{sec:sensor_fusion_examples}, we will provide examples on these complementary and sensor correction filters design.
 
 \subsubsection{Sensor fusion using complementary filter \label{sec:complementary_filter}}
+Fig.~\ref{fig:complementary_filter} shows the block diagram of a sensor fusion configuration using two filters $H_1(s)$ and $H_2(s)$ to blend two sensors that has different noise characteristics $N_1(s)$ and $N_2(s)$. 
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.3\linewidth]{example-image-a}
+	\caption{2-sensor blending using complementary filters}
+	\label{fig:complementary_filter}
+\end{figure}
+As shown in the figure, the resultant ``super sensor'' readout has a super sensor noise $N_\mathrm{super}(s)$, and it's given by
+\begin{equation}
+	N_\mathrm{super}(s) = H_1(s)N_1(s) + H_2(s)N_2(s)\,.
+\end{equation}
+Note that we omitted the common signal that the sensors are measuring and simply focus on the noises.
+Since we expect the super sensor readout to contain the original common signal, the  filters $H_1(s)$ and $H_2(s)$ must be complementary, as in
+\begin{equation}
+	H_1(s) + H_2(s) = 1\,.
+\end{equation}
+Alternatively, we can express the second filter $H_2(s)$ as $1-H_1(s)$, and so the super sensor noise is a function of one filter,
+\begin{equation}
+	N_\mathrm{super}(s; H_1(s)) = H_1(s)N_1(s) + \left[1-H_1(s)\right]N_2(S)\,.
+\end{equation}
+The amplitude spectral density of the super sensor noise is then
+\begin{equation}
+	\hat{N}_\mathrm{super}(f; H_1(s)) = \left[\left\lvert H_1(s) \right\rvert^2\hat{N}_1^2(f) + \left\lvert 1-H_1(s) \right\rvert^2\hat{N}_2^2(f)\right]^\frac{1}{2}\,,
+\end{equation}
+where $\hat{N}(s)$ denotes the amplitude spectral densities.
+
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
 \subsubsection{Examples \label{sec:sensor_fusion_examples}}
