@@ -1,1 +1,20 @@
 \subsection{Sensor fusion}
+Sensor fusion is a technique that combines multiple sensors into a virtual ``super sensor'' that has better performance compared to that of the individual sensors.
+In KAGRA, sensor fusion is used mostly for the preisolator, where active seismic isolation is critical.
+In particular, LVDTs and Geophones are blended using complementary filters so the displacement readouts at the preisolator benefits from the advantages from the goephones (seismic noise-free and low sensor noise at higher frequencies) and LVDTs (low sensor noise at lower frequencies).
+Sensor correction is used to remove the seismic noise coupling from the LVDT readouts at the preisolator using the seismometer readout.
+Strictly speaking, sensor correction also utilizes complementary filter.
+For optimal performance, sensor correction should be considered as a complementary filter problem.
+But, sensor correction was not conventionally considered this way during the first attempt in KAGRA \cite{sensor_correction_gain_tuning, comment_to_sensor_correction_gain_tuning}.
+Instead, sensor correction filters were constructed as a high-pass filter using heuristics.
+So, we will make a distinction between complementary filter problems and sensor correction filters in this section.
+
+This section is organized as follows.
+In Sec.~\ref{sec:complementary_filter}, we will discuss some predefined complementary filters and how to design and optimize the filter parameters.
+In Sec.~\ref{sec:sensor_correction}, we will introduce the purpose of sensor correction and we will discuss how was it design and how can we improve it.
+In Sec.~\ref{sec:sensor_fusion_examples}, we will provide examples on these complementary and sensor correction filters design.
+
+\subsubsection{Sensor fusion using complementary filter \label{sec:complementary_filter}}
+
+\subsubsection{Sensor correction \label{sec:sensor_correction}}
+\subsubsection{Examples \label{sec:sensor_fusion_examples}}
