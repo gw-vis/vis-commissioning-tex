@@ -47,6 +47,22 @@ The amplitude spectral density of the super sensor noise is then
 	\hat{N}_\mathrm{super}(f; H_1(s)) = \left[\left\lvert H_1(s) \right\rvert^2\hat{N}_1^2(f) + \left\lvert 1-H_1(s) \right\rvert^2\hat{N}_2^2(f)\right]^\frac{1}{2}\,,
 \end{equation}
 where $\hat{N}(s)$ denotes the amplitude spectral densities.
+And here, clearly the goal is the design $H_1(s)$ such that some function $J$ of $\hat{N}_\mathrm{super}(f)$ is minimized.
+The problem is stated as follow
+\begin{equation}
+	\minimize_{H_1(s)\in\mathcal{S}} J(\hat{N}_\mathrm{super}\mleft(f; H_1(s)\mright))\,,
+\end{equation}
+where $J$ is some cost function and $\mathcal{S}$ is the set of proper transfer functions.
+We didn't specify the cost function $J$ because this is a user-defined objective.
+One of the typical choices of $J$ would be the (weighted) $\mathcal{L}_2$ norm, which is equivalent to expected RMS of the super sensor noise, i.e.
+\begin{equation}
+	J_\mathrm{RMS}\mleft( H_1(s) \mright) = \left[\int_{-\infty}^\infty \, \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)^2 w(f)^2\, df\right]^\frac{1}{2}\,,
+\end{equation}
+where, again, $w(f)$ is some specified weighting function according to specific requirements of the sensor.
+Another typical choice of $J$ would be the (weighted) $\mathcal{L}_\infty$ norm, which corresponds to setting frequency dependent specifications of the super sensor noise:
+\begin{equation}
+	J_{\mathcal{L}_\infty} = \sup_{f} \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)
+\end{equation}
 
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
