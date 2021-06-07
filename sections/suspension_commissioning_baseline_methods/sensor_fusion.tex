@@ -25,7 +25,7 @@ In Sec.~\ref{sec:sensor_fusion_examples}, we will provide examples on these comp
 Fig.~\ref{fig:complementary_filter} shows the block diagram of a sensor fusion configuration using two filters $H_1(s)$ and $H_2(s)$ to blend two sensors that has different noise characteristics $N_1(s)$ and $N_2(s)$. 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=0.3\linewidth]{example-image-a}
+	\includegraphics[width=64mm]{figures/complementary_filter}
 	\caption{2-sensor blending using complementary filters}
 	\label{fig:complementary_filter}
 \end{figure}
@@ -40,7 +40,7 @@ Since we expect the super sensor readout to contain the original common signal, 
 \end{equation}
 Alternatively, we can express the second filter $H_2(s)$ as $1-H_1(s)$, and so the super sensor noise is a function of one filter,
 \begin{equation}
-	N_\mathrm{super}(s; H_1(s)) = H_1(s)N_1(s) + \left[1-H_1(s)\right]N_2(S)\,.
+	N_\mathrm{super}(s; H_1(s)) = H_1(s)N_1(s) + \left[1-H_1(s)\right]N_2(s)\,.
 \end{equation}
 The amplitude spectral density of the super sensor noise is then
 \begin{equation}
@@ -51,18 +51,93 @@ And here, clearly the goal is the design $H_1(s)$ such that some function $J$ of
 The problem is stated as follow
 \begin{equation}
 	\minimize_{H_1(s)\in\mathcal{S}} J(\hat{N}_\mathrm{super}\mleft(f; H_1(s)\mright))\,,
+	\label{eqn:cost_function_complementary_filter}
 \end{equation}
 where $J$ is some cost function and $\mathcal{S}$ is the set of proper transfer functions.
 We didn't specify the cost function $J$ because this is a user-defined objective.
-One of the typical choices of $J$ would be the (weighted) $\mathcal{L}_2$ norm, which is equivalent to expected RMS of the super sensor noise, i.e.
+One of the typical choices of $J$ would be the (weighted) 2-norm \cite{norms_for_signals_and_systems}, which is equivalent to expected RMS of the weighted super sensor noise, i.e.
 \begin{equation}
-	J_\mathrm{RMS}\mleft( H_1(s) \mright) = \left[\int_{-\infty}^\infty \, \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)^2 w(f)^2\, df\right]^\frac{1}{2}\,,
+	J_2\mleft( H_1(s) \mright) = \left[\int_{-\infty}^\infty \, \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)^2 w(f)^2\, df\right]^\frac{1}{2}\,,
 \end{equation}
 where, again, $w(f)$ is some specified weighting function according to specific requirements of the sensor.
-Another typical choice of $J$ would be the (weighted) $\mathcal{L}_\infty$ norm, which corresponds to setting frequency dependent specifications of the super sensor noise:
+Another typical choice of $J$ would be the (weighted) $\infty$-norm \cite{norms_for_signals_and_systems}, peak of the weighted spectral density of the super sensor noise, i.e.
 \begin{equation}
-	J_{\mathcal{L}_\infty} = \sup_{f} \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)
+	J_\infty\mleft(H_1(s)\mright) = \sup_{f} \left(\hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)w(f) \right) \,,
 \end{equation}
+where $\sup()$ denotes the supremum and $w(f)$ in this case would be the inverse of the frequency dependent specification of the sensor noise.
+With all that said, these optimization problem defined by Eqn.~\eqref{eqn:cost_function_complementary_filter} may not be easy to solve, as parameterizing the transfer function space $\mathcal{S}$ is not easy.
+Instead, these problems are solved using modern control methods like $\mathcal{H}_2/\mathcal{H}_\infty$ methods \cite{feedback_control_theory}, which is rather involved and will not be discussed here.
+In a recent article, sensor correction filters (a type of complementary filter) used in LIGO \cite{low_frequency_vibration_isolation_hua} was reproduced using $\mathcal{H}_\infty$ synthesis using frequency dependent specifications by LIGO \cite{complementary_filters_shaping_using_h_infinity_synthesis}.
+Unlike that in \cite{low_frequency_vibration_isolation_hua}, method in \cite{complementary_filters_shaping_using_h_infinity_synthesis} are extremely useful in optimizing IIR filters that is directly implementable to KAGRA's current digital system and therefore should be considered\footnote{This is part of my research actually.}.
+However, we will only mention this here and details of these advanced methods will be discussed in the advance method section, i.e. Sec.~\ref{sec:suspension_commissioning_advanced_methods}.
+
+Instead of fancy optimization approaches, we will discuss heuristic methods that were used to design complementary filters in KAGRA.
+Here, we will present two methods used previously: 1) Predefined filters \cite{Sekiguchi:2016bmv, Heijningen:2018evm}, and 2) Filter shaping according to sensing noises \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}.
+The two methods we discuss here will require a sensor noise measurement or modeling prior.
+So be sure to check Sec.~\ref{sec:sensor_noise_measurement} and Sec.~\ref{sec:noise_modeling_baseline}.
+Also be sure that those noise spectral densities are available before doing anything related to complementary filters.
+
+Throughout the discussion, we will be referring noise $N_1$ to the seismic noise-coupled LVDT readout noise and $N_2$ to the geophone noise.
+The ASD of the LVDT readout noise is defined as
+\begin{equation}
+	\hat{N}_1(f) = \left[ \hat{N}_\mathrm{LVDT}(f)^2 + \hat{N}_\mathrm{seismic}(f)^2 \right]^\frac{1}{2}\,,
+\end{equation}
+where $\hat{N}_\mathrm{LVDT}(f)$ is the ASD of the LVDT self-noise, which has a $f^{-0.5}$ dependency at low frequency and $f^{0}$ dependency at higher frequencies, and $\hat{N}_\mathrm{seismic}(f)$ is the ASD of the seismic noise.
+The ASD of the geophone noise is simply
+\begin{equation}
+	\hat{N}_2(f) = \hat{N}_\mathrm{geophone}\,,
+\end{equation}
+where $\hat{N}_\mathrm{geophone}$ is the geophone self-noise that has a $f^{-3.5}$ dependency at low frequency and $f^{-1}$ dependency at higher frequencies.
+The amplitude spectral densities of these noises are plotted in Fig.~\ref{fig:sensornoisesforcomplementaryfilter}\footnote{I've altered the seismic noise at frequency $<0.4\,\mathrm{Hz}$ to omit the seismometer noise.}.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figures/sensor_noises_for_complementary_filter}
+	\caption{Amplitude spectral density of various noises. Blue: LVDT readout noise coupled to seismic noise. Orange: geophone noise. Green dash-dot: LVDT self-noise. Red dashed: Seismic noise from \cite{seismic_noise_kagra}. Note that the seismic noise was measured with seismometers so there're features at higher frequencies that are not really seismic noise, but are sensing artifacts. }
+	\label{fig:sensornoisesforcomplementaryfilter}
+\end{figure}
+
+\paragraph{Predefined Filters}
+In \cite{Sekiguchi:2016bmv} and \cite{Heijningen:2018evm}, sensor fusion using complementary filters to blend LVDTs and geophones at the preisolator stage was briefly discussed.
+In \cite{Sekiguchi:2016bmv}, a predefined complementary filter was proposed,
+\begin{equation}
+	H_1(s;f_b) = \frac{35(2\pi f_b)^4 s^3 + 21(2\pi f_b)^5 s^2 + 7(2\pi f_b)^6 s + (2\pi f_b)^7}{(s+2\pi f_b)^7}\,,
+	\label{eqn:complementary_filter_sekiguchi}
+\end{equation}
+where $f_b$ is the blending frequency at which $\lvert H_1(s)\rvert$ meets $\lvert H_2(s) \rvert$, and $H_2(s)=1-H_1(s)$.
+Fig.~\ref{fig:sekiguchicomplementaryfilter} shows an example of Eqn.~\eqref{eqn:complementary_filter_sekiguchi} with blending frequency at $1\,\mathrm{Hz}$.
+A simpler one was proposed in \cite{Heijningen:2018evm} but that was for Virgo so we won't mention it here.
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figures/sekiguchi_complementary_filter}
+	\caption{Example complementary filter Eqn.~\eqref{eqn:complementary_filter_sekiguchi} with $f_b=1\,\mathrm{Hz}$.}
+	\label{fig:sekiguchicomplementaryfilter}
+\end{figure}
+The choice of filter shape defined in Eqn.~\eqref{eqn:complementary_filter_sekiguchi} is simple, i.e. the complementary filter $H_2(s)$ is a high-pass filter with fourth-order roll-off at lower frequencies.
+The choice of this roll-off is designed to filter out the $f^{-3.5}$ geophone noise\footnote{In this sense, any forth-order high-pass filter should fulfill the purpose. The use of Eqn.~\eqref{eqn:complementary_filter_sekiguchi} is not really justified here. This is why I don't like the predefined filter approach.} as shown in Fig.~\ref{fig:sensornoisesforcomplementaryfilter}.
+In \cite{Sekiguchi:2016bmv}, it was also mentioned the sensor noise would be minmized if the choice of blending frequency $f_b$ would be at the cross-over frequency of the two noises\footnote{The statement is vague. What does it mean by minimized? Minimized in what sense? In RMS? Or in peak amplitude?}, i.e. around $70\,\mathrm{mHz}$ in our case.
+
+This method is indeed very simple to implement.
+But, there are some caveats and questions to be noted.
+First of all, we should note that this method is by definition suboptimal since the shape of the filter defined in Eqn.~\eqref{eqn:complementary_filter_sekiguchi} is hardly justified.
+For example, what happens if we switched sensors, say, from geophones to accelerometers?
+The noise profile would completely changed and so we might need a different roll-off for the accelerometer.
+In this sense, having a predefined filter is not really general enough.
+Also, we must note that there will be noise amplification around the blending frequency as shown in Fig.~\ref{fig:sekiguchicomplementaryfilter}.
+So, in some extreme case, we might get worsened noise RMS/peak magnitude if the blending frequency is not placed properly.
+Also, it's worth pointing out that the low-pass filter has a forth-order roll-off at high frequencies as well.
+According to the design logic in \cite{Sekiguchi:2016bmv}, since the LVDT noise has a $f^{0}$ frequency dependency at higher frequencies, it's only required to have a first-order roll-off.
+This would mean that the filter is a bit overkilled for the purpose of filtering LVDT noise.
+So, why not design a complementary filter that composes of a first-order low-pass and a forth-order high-pass?
+In this case, we might even get lower noise amplification at the blending frequency.
+Nevertheless, what about the seismic noise coupling we see in the LVDT readout?
+Shouldn't we design the complementary filter to account for the microseism around $200\,\mathrm{mHz}$?
+
+\paragraph{Filter shaping according to sensing noises}
+This brings use to the method used in \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}.
+
+
+
+
 
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
