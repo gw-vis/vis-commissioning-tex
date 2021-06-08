@@ -50,14 +50,15 @@ where $\hat{N}(s)$ denotes the amplitude spectral densities.
 And here, clearly the goal is the design $H_1(s)$ such that some function $J$ of $\hat{N}_\mathrm{super}(f)$ is minimized.
 The problem is stated as follow
 \begin{equation}
-	\minimize_{H_1(s)\in\mathcal{S}} J(\hat{N}_\mathrm{super}\mleft(f; H_1(s)\mright))\,,
+	\minimize_{H_1(s)\in\mathcal{S}} J\mleft(\hat{N}_\mathrm{super}\mleft(f; H_1(s)\mright)\mright)\,,
 	\label{eqn:cost_function_complementary_filter}
 \end{equation}
 where $J$ is some cost function and $\mathcal{S}$ is the set of proper transfer functions.
 We didn't specify the cost function $J$ because this is a user-defined objective.
 One of the typical choices of $J$ would be the (weighted) 2-norm \cite{norms_for_signals_and_systems}, which is equivalent to expected RMS of the weighted super sensor noise, i.e.
 \begin{equation}
-	J_2\mleft( H_1(s) \mright) = \left[\int_{-\infty}^\infty \, \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)^2 w(f)^2\, df\right]^\frac{1}{2}\,,
+	J_2\mleft(H_1(s)\mright) = \left[\int_{-\infty}^\infty \, \hat{N}_\mathrm{super}\mleft(f;H_1(s)\mright)^2 w(f)^2\, df\right]^\frac{1}{2}\,,
+	\label{eqn:cost_function_super_sensor_noise_rms}
 \end{equation}
 where, again, $w(f)$ is some specified weighting function according to specific requirements of the sensor.
 Another typical choice of $J$ would be the (weighted) $\infty$-norm \cite{norms_for_signals_and_systems}, peak of the weighted spectral density of the super sensor noise, i.e.
@@ -77,7 +78,7 @@ The two methods we discuss here will require a sensor noise measurement or model
 So be sure to check Sec.~\ref{sec:sensor_noise_measurement} and Sec.~\ref{sec:noise_modeling_baseline}.
 Also be sure that those noise spectral densities are available before doing anything related to complementary filters.
 
-Throughout the discussion, we will be referring noise $N_1$ to the seismic noise-coupled LVDT readout noise and $N_2$ to the geophone noise.
+Throughout the discussion, we will be referring noise $N_1$ to the seismic noise-coupled LVDT readout noise, see Sec.~\ref{sec:sensor_correction} for why this is the case, and $N_2$ to the geophone noise.
 The ASD of the LVDT readout noise is defined as
 \begin{equation}
 	\hat{N}_1(f) = \left[ \hat{N}_\mathrm{LVDT}(f)^2 + \hat{N}_\mathrm{seismic}(f)^2 \right]^\frac{1}{2}\,,
@@ -85,7 +86,7 @@ The ASD of the LVDT readout noise is defined as
 where $\hat{N}_\mathrm{LVDT}(f)$ is the ASD of the LVDT self-noise, which has a $f^{-0.5}$ dependency at low frequency and $f^{0}$ dependency at higher frequencies, and $\hat{N}_\mathrm{seismic}(f)$ is the ASD of the seismic noise.
 The ASD of the geophone noise is simply
 \begin{equation}
-	\hat{N}_2(f) = \hat{N}_\mathrm{geophone}\,,
+	\hat{N}_2(f) = \hat{N}_\mathrm{geophone}(f)\,,
 \end{equation}
 where $\hat{N}_\mathrm{geophone}$ is the geophone self-noise that has a $f^{-3.5}$ dependency at low frequency and $f^{-1}$ dependency at higher frequencies.
 The amplitude spectral densities of these noises are plotted in Fig.~\ref{fig:sensornoisesforcomplementaryfilter}\footnote{I've altered the seismic noise at frequency $<0.4\,\mathrm{Hz}$ to omit the seismometer noise.}.
@@ -117,7 +118,7 @@ The choice of this roll-off is designed to filter out the $f^{-3.5}$ geophone no
 In \cite{Sekiguchi:2016bmv}, it was also mentioned the sensor noise would be minmized if the choice of blending frequency $f_b$ would be at the cross-over frequency of the two noises\footnote{The statement is vague. What does it mean by minimized? Minimized in what sense? In RMS? Or in peak amplitude?}, i.e. around $70\,\mathrm{mHz}$ in our case.
 
 This method is indeed very simple to implement.
-But, there are some caveats and questions to be noted.
+But, there are some caveats and problems to be noted.
 First of all, we should note that this method is by definition suboptimal since the shape of the filter defined in Eqn.~\eqref{eqn:complementary_filter_sekiguchi} is hardly justified.
 For example, what happens if we switched sensors, say, from geophones to accelerometers?
 The noise profile would completely changed and so we might need a different roll-off for the accelerometer.
@@ -133,11 +134,38 @@ Nevertheless, what about the seismic noise coupling we see in the LVDT readout?
 Shouldn't we design the complementary filter to account for the microseism around $200\,\mathrm{mHz}$?
 
 \paragraph{Filter shaping according to sensing noises}
-This brings use to the method used in \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}.
+This brings us to the method used in \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}, filter shaping according to the sensor noise.
+This method was brought to KAGRA by suspension experts in Virgo.
+However, this method is closed-source and is not well known in KAGRA, even if those filters have been installed to the Type-A suspensions.
+Therefore, here, I would like to reverse-engineer this approach.
+I have used optimization methods to optimize complementary filters by minimizing various cost functions including the expected RMS of super sensor noise, i.e. Eqn.~\eqref{eqn:cost_function_super_sensor_noise_rms}, and the optimized filters strongly resembles those filters designed by this method.
+So, personally, I think this is a slightly superior method compared to the predefined filter method in \cite{Sekiguchi:2016bmv, Heijningen:2018evm}.
+To use this method, it's required to have good knowledge in filter shaping.
+And so, this method can only be used by experts and it's likely to be irreproducible.
+This is the downside of this method.
 
+This method relies on designing a general filter/transfer function
+\begin{equation}
+	H_1(s;\theta_{H_1}) = \frac{\prod_i^{n_z}\left( s/z_i+1\right)}{\prod_j^{n_p} \left(s/p_j+1\right)}\frac{\prod_m^{n_{cz}} \left( \frac{1}{\omega_m^2}s^2 + \frac{1}{q_m \omega_m}s + 1 \right)}{\prod_n^{n_{cp}} \left(\frac{1}{\Omega_n^2}s^2 + \frac{1}{Q_n \Omega_n}s + 1 \right)}\,,
+	\label{eqn:complementary_filter_general}
+\end{equation}
+where, $\theta_{H_1}$ are the design parameters $\left[z_i,p_j,\omega_m,q_m,\Omega_n,Q_n,n_z,n_p,n_{cz},n_{zp}\right]^T$, $z_i,p_j\in\mathbb{R}^+$ are the angular frequencies of the simple zeros and simple poles, $\omega_m,\Omega_n\in\mathbb{R}^+$ are the angular frequencies of the complex zeros and complex poles\footnote{Here, we defined complex zeros and poles as a second-order section in the numerator and the denominator respectively.}, $q_m,Q_n\in\mathbb{R}^+$ are the quality factors of the complex zeros and complex poles, and $n_z$, $n_p$, $n_{cz}$, and $n_{cp}$ are the number of zeros, poles, complex zeros, and complex poles, respectively.
+Here, we have four types of elements, simple zeros $(s/z_i+1)$, simple poles $(\frac{1}{s/p_i+1})$, complex zeros $(\frac{1}{\omega_m}s^2+\frac{1}{q_m\omega_m}s+1)$, and complex poles $(\frac{1}{\frac{1}{\Omega_m}s^2+\frac{1}{Q_m\Omega_m}s+1})$, and the filter is defined as the produce of these elements.
+The effect of these element in the magnitude response of the filter is well understood.
+A simple zero will increase the slope of the magnitude response by 1 order per decade starting from the location of the zero $z_i$, while a simple pole will decrease the slope at the pole $p_j$ instead.
+A complex zero will create a notch at the complex zero frequency $\omega_m$ and will increase the slope of the magnitude response by 2 orders per decade.
+All these features combined can make any filter shape.
+So unlike Eqn.~\eqref{eqn:complementary_filter_sekiguchi}, Eqn.~\eqref{eqn:complementary_filter_general} is maximally flexible.
+This is also the reason why it can be hard to design
 
-
-
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figures/lucia_complementary_filter}
+	\caption{Example complementary filter designed using method in \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}.}
+	\label{fig:luciacomplementaryfilter}
+\end{figure}
+Fig.~\ref{fig:luciacomplementaryfilter} shows an example filter from \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}.
+...
 
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
