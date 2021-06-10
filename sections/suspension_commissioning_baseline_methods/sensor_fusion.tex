@@ -156,7 +156,7 @@ A simple zero will increase the slope of the magnitude response by 1 order per d
 A complex zero will create a notch at the complex zero frequency $\omega_m$ and will increase the slope of the magnitude response by 2 orders per decade.
 All these features combined can make any filter shape.
 So unlike Eqn.~\eqref{eqn:complementary_filter_sekiguchi}, Eqn.~\eqref{eqn:complementary_filter_general} is maximally flexible.
-This is also the reason why it can be hard to design
+This is also the reason why it can be hard to design.
 
 \begin{figure}[!h]
 	\centering
@@ -165,8 +165,122 @@ This is also the reason why it can be hard to design
 	\label{fig:luciacomplementaryfilter}
 \end{figure}
 Fig.~\ref{fig:luciacomplementaryfilter} shows an example filter from \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}.
-...
+This filter may not be designed for KAGRA's sensors, but the concept is transferable.
+Here, we will first qualitatively describe what is the rationale behind the design.
+And then, we will do a break down of the transfer function expression of the filters in Fig.~\ref{fig:luciacomplementaryfilter} and attempt to reconstruct a filter like that.
 
+The idea of this design goes as follows.
+For the low-pass filter $H_1(s)$, we would like a $2^\mathrm{nd}$-order roll-off at high frequencies.
+As for the high-pass $H_2(s)$, we are looking for a $3^\mathrm{rd}$-order roll-off at lower frequencies.
+These roll-off orders are designed according to the noise amplitude spectral densities $\hat{N}_1(f)$ and $\hat{N}_2(f)$.
+We can choose the roll-off order based on arguments in \cite{Sekiguchi:2016bmv}.
+For example, if we expect the noise $\hat{N}_2(f)$ to have a $f^{-3.5}$ frequency dependency at lower frequencies, then the filter $H_2(s)$ should have at least that order of roll-off, i.e. $4^\mathrm{th}$-order roll-off.
+Alternatively, the relative order between $\hat{N}_1(f)$ and $\hat{N}_2(f)$ is considered.
+For example, if $\hat{N}_1(f)$ has a frequency dependency of $f^{-0.5}$ at lower frequencies and $\hat{N}_2(f)$ has a frequency dependency of $f^{-3.5}$ at lower frequency, the relative order is 3.
+This means a $3^\mathrm{rd}$-order roll-off for $H_2(s)$ is sufficient so the noise $\hat{N}_2(f)$ not over-suppressed.
+This is more optimal since over-suppressing would necessarily mean more noise-amplification around the blending frequency (See Bode's sensitivity integral for more details \cite{wiki:bode's_sensitivity_integral}.).
+Like-wise, we can choose the roll-off for the low-pass following the same argument.
+But in this case, $2^\mathrm{nd}$-order was chosen for whatever reason.
+Another main difference between filters in Fig.~\ref{fig:luciacomplementaryfilter} and Fig.~\ref{fig:sekiguchicomplementaryfilter} is the ``notch'' in the low-pass filter at around $0.4\,\mathrm{Hz}$.
+The low-pass filter is designed to have a higher-order roll-off around $0.1$ to $0.4\,\mathrm{Hz}$ for the purpose of filtering out the microseism around $0.2\,\mathrm{Hz}$.
+The (secondary) microseism \cite{wiki:microseism} is a bump at around $0.2\,\mathrm{Hz}$ in the seismic noise spectrum, which is obviously visible in $N_1$ (blue curve) in Fig.~\ref{fig:sensornoisesforcomplementaryfilter}.
+To prevent over-filtering, the low-pass returns to the $2^\mathrm{nd}$-order filtering at higher frequencies.
+With these design features, the shapes of the low-pass and high-pass are roughly fixed except the blending frequency.
+The blending frequency is the chosen to be high enough such that the inertial sensing noise at lower frequencies does not compromise the expected RMS of the super sensor noise.
+Again, this will be around the cross-over frequency of the two sensing noises.
+
+Now, let's reverse-engineer the filter shown in Fig.~\ref{fig:luciacomplementaryfilter} and see if we can design something similar.
+The low-pass filter\footnote{I was given the filter by Lucia herself a few years ago.} shown in figure is expressed as
+\begin{equation}
+	H_1(s) = \frac{\left(\frac{1}{\omega_1^2}s^2+\frac{1}{q_1\omega_1}s+1\right)\left(\frac{1}{\omega_2^2}s^2+\frac{1}{q_2\omega_2}s+1\right)\left(\frac{1}{\omega_3^2}s^2+\frac{1}{q_3\omega_3}s+1\right)}{(s/p_1+1)^5(s/p_2+1)^3}\,,
+	\label{eqn:complementary_low-pass_filter_lucia}
+\end{equation}
+where $\frac{p_1}{2\pi} = 0.12\,\mathrm{Hz}$, $\frac{p_2}{2\pi} = 0.25\,\mathrm{Hz}$, $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $\frac{\omega_3}{2\pi} = 0.031272069\,\mathrm{Hz}$, $q_1 = 2$, $q_2 = 1.1$, and $q_3 = 0.64417749$.
+From these values, we immediately see part of the story behind the design: the poles and the first two complex zeros are designed values while the third complex zero is passively derived numerically.
+The reason why we cannot assign all parameters is because we want the complementary filter
+$H_2(s)=1-H_1(s)$ to be a third-order high-pass filter.
+This necessarily means that $H_2(s)$ must have 3 zeros at $0\,\mathrm{Hz}$ (or negligibly low frequency), i.e. $H_2(s) = \frac{s^3\dots}{\dots}$, and no poles between the blending frequency and $0\,\mathrm{Hz}$.
+While $H_2(s) = 1-H_1(s) = \frac{\dots}{\left(s/p_1+1\right)^5\left(s/p_2+1\right)^3}$ that $H_1(s)$ and $H_2(s)$ to share the same poles, this guarantees that there will be no poles in $H_2(s)$ before the blending frequency, which will be slighly before $\frac{p_1}{2\pi}$.
+
+Now, let's write $H_1(s)$ in a more general transfer function form
+\begin{equation}
+	H_1(s) = \frac{B(s)}{A(s)} = \frac{\sum_{i=0}^6 b_is^i}{\sum_{j=0}^8 a_js^j}\,,
+	\label{eqn:complementary_low-pass_filter_lucia_polynomial}
+\end{equation}
+where $B(s)$ and $A(s)$ are the numerator and denominator polynomials of the $H_1(s)$ transfer function and $b_i$ and $a_j$ are the polynomial coefficients.
+And, as for $H_2(s)$, it becomes
+\begin{equation}
+	H_2(s) = 1-H_1(s) = \frac{\sum_{j=0}^8 a_js^j - \sum_{i=0}^6 b_is^i}{\sum_{j=0}^8 a_j s^j}\,.
+\end{equation}
+So it follows that $a_2-b_2=a_1-b_1=a_0-b_0=0$ are the requirements, if we want $H_2(s) = \frac{s^3\dots}{\dots}$, i.e. a $3^\mathrm{rd}$-order high-pass filter.
+Inspecting Eqn.~\eqref{eqn:complementary_low-pass_filter_lucia}, we see that $a_0=b_0=1$ so $a_0-b_0=0$ is automatically satisfied.
+This means what we still need to engineer $b_2$ and $b_1$ so they equals to $a_2$ and $a_1$ respectively.
+This explains why there are two passively derived values, $\omega_3$ and $q_3$, in Eqn.~\eqref{eqn:complementary_low-pass_filter_lucia}.
+Let's assume that we designed other parameters (we shall explain this later) except $\omega_3$ and $q_3$.
+Now, we just need to solve for them algebraically.
+Plugging in $\frac{p_1}{2\pi} = 0.12\,\mathrm{Hz}$, $\frac{p_2}{2\pi} = 0.25\,\mathrm{Hz}$ into $A(s) = (s/p_1+1)^5(s/p_2+1)^3$, we get
+\begin{equation}
+	a_2=31.47148543 \quad\text{and}\quad a_1=8.54131528\,.
+\end{equation}
+Expanding $B(s)=\left(\frac{1}{\omega_1^2}s^2+\frac{1}{q_1\omega_1}s+1\right)\left(\frac{1}{\omega_2^2}s^2+\frac{1}{q_2\omega_2}s+1\right)\left(\frac{1}{\omega_3^2}s^2+\frac{1}{q_3\omega_3}s+1\right)$,
+we get
+\begin{equation}
+	b_2 = \frac{1}{\omega_1^2} + \frac{1}{\omega_2^2} + \frac{1}{\omega_3^2} + \frac{1}{q_1\omega_1 q_2\omega_2} + \frac{1}{q_1\omega_1 q_3\omega_3} + \frac{1}{q_2\omega_2 q_3\omega_3}\,,
+	\label{eqn:b_2_unsolved}
+\end{equation}
+and
+\begin{equation}
+	b_1 = \frac{1}{q_1\omega_1}+\frac{1}{q_2\omega_3}+\frac{1}{q_3\omega_3}\,.
+\end{equation}
+By equating $b_1=a_1=8.54131528$ and substituting $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $q_1 = 2$, and $q_2 = 1.1$, we get
+\begin{equation}
+	\frac{1}{q_3\omega_3} = 7.9005615330066545\,.
+	\label{eqn:1_over_q3_omega3}
+\end{equation}
+Substituting Eqn.~\eqref{eqn:1_over_q3_omega3} $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $q_1 = 2$, $q_2 = 1.1$, and $b_2=a_2=31.47148543$ into \eqref{eqn:b_2_unsolved} and solve for $\omega_3$,
+we get
+\begin{equation}
+	\begin{split}
+		\frac{1}{\omega_3^2} &= 25.901625838545005\\
+		\frac{\omega_3}{2\pi} &= 0.03127206923221885\,\mathrm{Hz}\,,
+	\end{split} 
+\end{equation}
+where we of course reject the negative values corresponds to an unstable zero.
+This matches the initial statement where we say $\frac{\omega_3}{2\pi} = 0.031272069\,\mathrm{Hz}$ is a derived value.
+Solving for $q_3$, and not surprisingly, we get
+\begin{equation}
+	\begin{split}
+		q_3 &= \frac{1}{7.900\dots\omega_3}\\
+		&= 0.6441775018514415
+	\end{split}
+\end{equation}
+which also equals the inital statement where we say $q_3 = 0.64417749$ is a derived value.
+
+Now, let's see how are the other parameters decided.
+First of all, let's remind ourselves what are the requirements of this filter.
+The low-pass filter $H_1(s)$ has to have second-order roll-off at higher frequencies.
+This means that the order of the denominator polynomial $A(s)$ has to at least 2.
+We said that the high-pass filter $H_2(s)$ has to have third-order roll-off.
+While $H_2(s) = 1-H_1(s) = \frac{A(s)-B(s)}{A(s)}$, and the order of $B(s)$ is less than that of $A(s)$, the order of $A(s)$ must be at least 3.
+Now, as mentioned we need to have 2 derived parameters in $B(s)$ so the order of $B(s)$ is at least 2.
+Since $H_1(s$ is designed to have second-order roll-off, the relative order between $B(s)$ and $A(s)$ must be 2, so now the order of $A(s)$ must be at least 4.
+Now, this is the tricky part.
+By inspecting the $N_1$ noise in Fig.~\ref{fig:sensornoisesforcomplementaryfilter}, we see that the microseism is roughly 2 orders of magnitude higher than that of the geophone noise $N_2$.
+While the microseism noise spans around half a decade, to completely suppress it would require a $4^\mathrm{th}$-order roll-off before the microseism.
+In other words, we would require 4 additional order in $A(s)$ to suppress this, and also 4 addition order in $B(s)$ to cancel the high-order roll-off so to retain a $2^\mathrm{nd}$ order roll-off at higher frequencies.
+These constrain $A(s)$ to be an $>8^\mathrm{th}$-order polynomial and $B(s)$ to be an $>6^\mathrm{th}$-order polynomial.
+This justifies the form as shown in Eqn.~\eqref{eqn:complementary_low-pass_filter_lucia_polynomial}.
+Converting from Eqn.~\eqref{eqn:complementary_low-pass_filter_lucia_polynomial} to Eqn.~\eqref{eqn:complementary_low-pass_filter_lucia} is purely a designer's choice as it's free to construct the polynomials using either simple zeros/poles or complex zeros/poles.
+However, it's important to set the frequencies of the zeros and poles according to the purpose.
+Here, as we would like to filter out the microseism, $p_1$ was chosen to be at $0.12\,\mathrm{Hz}$ so the low-pass roll-offed before the microseism frequency.
+The choice of the order $p_1$ is $5$ which would be arguable as it might the roll-off might be reduced to $3^\mathrm{rd}$-order if one of the frequencies of the complex zeros is lower than that of $p_1$, which is actually the case.
+The frequency of $p_2$ is chosen to be $0.25\,\mathrm{Hz}$, which is not that important so long as it's
+in between the frequencies of the two complex zeros, which is $0.35\,\mathrm{Hz}$.
+The frequencies of the complex zeros are chosen to be slightly higher than that of the microseism so the low-pass filter returns to a the final designed $2^\mathrm{nd}$-order roll-off.
+The Q factors for the first and second are tunable parameters so to finely adjust the blending frequency as well as the suppression needed at the complex zeros frequencies.
+The ended up irrelevant as they were set to very low.
+At last, as mentioned, the frequency and the Q factor of the final complex zero was passive determined by requiring the high-pass filter $H_2(s)$ to have $3^\mathrm{rd}$-order roll-off.
+This is how a complementary filter is justified.
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
 \subsubsection{Examples \label{sec:sensor_fusion_examples}}
