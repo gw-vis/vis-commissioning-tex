@@ -280,7 +280,12 @@ The frequencies of the complex zeros are chosen to be slightly higher than that 
 The Q factors for the first and second are tunable parameters so to finely adjust the blending frequency as well as the suppression needed at the complex zeros frequencies.
 The ended up irrelevant as they were set to very low.
 At last, as mentioned, the frequency and the Q factor of the final complex zero was passive determined by requiring the high-pass filter $H_2(s)$ to have $3^\mathrm{rd}$-order roll-off.
-This is how a complementary filter is justified.
+This is how a complementary filter is designed and justified.
+
+Now, this will become very tedious but there's a resolution.
+As mentioned before, if we use optimization approach to minimize the super sensor noise by optimize an arbitrary $H_1(s)$ that has a $6^\mathrm{th}$-order numerator and $8^\mathrm{th}$-order numberator, then the result will be very similar to that shown in Fig.~\ref{fig:luciacomplementaryfilter}.
+And, it'll be arguably better.
+But let's not overcrowd this section and left this discussion to a later section (Sec.~\ref{sec:suspension_commissioning_advanced_methods}).
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
 \subsubsection{Examples \label{sec:sensor_fusion_examples}}
