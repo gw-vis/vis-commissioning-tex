@@ -82,13 +82,14 @@ Throughout the discussion, we will be referring noise $N_1$ to the seismic noise
 The ASD of the LVDT readout noise is defined as
 \begin{equation}
 	\hat{N}_1(f) = \left[ \hat{N}_\mathrm{LVDT}(f)^2 + \hat{N}_\mathrm{seismic}(f)^2 \right]^\frac{1}{2}\,,
+	\label{eqn:seismic_noise_coupled_lvdt_noise}
 \end{equation}
 where $\hat{N}_\mathrm{LVDT}(f)$ is the ASD of the LVDT self-noise, which has a $f^{-0.5}$ dependency at low frequency and $f^{0}$ dependency at higher frequencies, and $\hat{N}_\mathrm{seismic}(f)$ is the ASD of the seismic noise.
 The ASD of the geophone noise is simply
 \begin{equation}
 	\hat{N}_2(f) = \hat{N}_\mathrm{geophone}(f)\,,
 \end{equation}
-where $\hat{N}_\mathrm{geophone}$ is the geophone self-noise that has a $f^{-3.5}$ dependency at low frequency and $f^{-1}$ dependency at higher frequencies.
+where $\hat{N}_\mathrm{geophone}(f)$ is the geophone self-noise that has a $f^{-3.5}$ dependency at low frequency and $f^{-1}$ dependency at higher frequencies.
 The amplitude spectral densities of these noises are plotted in Fig.~\ref{fig:sensornoisesforcomplementaryfilter}\footnote{I've altered the seismic noise at frequency $<0.4\,\mathrm{Hz}$ to omit the seismometer noise.}.
 \begin{figure}[!h]
 	\centering
@@ -200,7 +201,7 @@ From these values, we immediately see part of the story behind the design: the p
 The reason why we cannot assign all parameters is because we want the complementary filter
 $H_2(s)=1-H_1(s)$ to be a third-order high-pass filter.
 This necessarily means that $H_2(s)$ must have 3 zeros at $0\,\mathrm{Hz}$ (or negligibly low frequency), i.e. $H_2(s) = \frac{s^3\dots}{\dots}$, and no poles between the blending frequency and $0\,\mathrm{Hz}$.
-While $H_2(s) = 1-H_1(s) = \frac{\dots}{\left(s/p_1+1\right)^5\left(s/p_2+1\right)^3}$ that $H_1(s)$ and $H_2(s)$ to share the same poles, this guarantees that there will be no poles in $H_2(s)$ before the blending frequency, which will be slighly before $\frac{p_1}{2\pi}$.
+While $H_2(s) = 1-H_1(s) = \frac{\dots}{\left(s/p_1+1\right)^5\left(s/p_2+1\right)^3}$ that $H_1(s)$ and $H_2(s)$ to share the same poles, this guarantees that there will be no poles in $H_2(s)$ before the blending frequency, which will be slightly before $\frac{p_1}{2\pi}$.
 
 Now, let's write $H_1(s)$ in a more general transfer function form
 \begin{equation}
@@ -283,9 +284,26 @@ At last, as mentioned, the frequency and the Q factor of the final complex zero 
 This is how a complementary filter is designed and justified.
 
 Now, this will become very tedious but there's a resolution.
-As mentioned before, if we use optimization approach to minimize the super sensor noise by optimize an arbitrary $H_1(s)$ that has a $6^\mathrm{th}$-order numerator and $8^\mathrm{th}$-order numberator, then the result will be very similar to that shown in Fig.~\ref{fig:luciacomplementaryfilter}.
-And, it'll be arguably better.
+As mentioned before, if we use optimization approach to minimize the super sensor noise by optimize an arbitrary $H_1(s)$ that has a $6^\mathrm{th}$-order numerator and $8^\mathrm{th}$-order numerator, then the result will be very similar to that shown in Fig.~\ref{fig:luciacomplementaryfilter}.
+And, it'll be arguably better because it's optimized instead of tuned.
 But let's not overcrowd this section and left this discussion to a later section (Sec.~\ref{sec:suspension_commissioning_advanced_methods}).
+For a sneak peek, please see \cite{srm_inertial_damping, discussion_on_vis_inertial_sensor} for a very preliminary implementation of these optimization methods.
 
 \subsubsection{Sensor correction \label{sec:sensor_correction}}
+Displacement sensors on the suspensions are typically relative displacement sensors that measure differential motion.
+Some displacement sensors are mounted on an non-suspended structure so the they measure the differential motion between the suspension and the ground.
+Example sensors are the LVDTs at the preisolator stage and the optical levers measuring the longitudinal motion of the optics.
+These sensors, in addition to the self sensor noise, are coupled to seismic noise, so the sensing noise is sum of the sensor self noise and the seismic noise.
+This is why we set the sensor noise in Eqn.~\eqref{eqn:seismic_noise_coupled_lvdt_noise} as a quadrature sum of LVDT noise and seismic noise.
+Sensors that are coupled to seismic noise cannot be used for active seismic isolation as seismic noise would be re-introduced as control noise.
+To maximize the control potential, on top of sensor blending using complementary filter (Sec.~\eqref{sec:complementary_filter}), we can artificially remove the seismic noise coupling from those seismic noise-coupled sensors by ``sensor correction''.
+
+Sensor correction is a technique first used by LIGO to reduce seismic noise coupling from the relative displacement sensors \cite{Matichard_2015}.
+\begin{figure}
+	\centering
+	\includegraphics[width=76mm]{figures/sensor_correction}
+	\caption{Sensor correction block diagram.}
+	\label{fig:sensorcorrection}
+\end{figure}
+
 \subsubsection{Examples \label{sec:sensor_fusion_examples}}
