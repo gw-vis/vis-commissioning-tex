@@ -134,6 +134,38 @@ In this case, we might even get lower noise amplification at the blending freque
 Nevertheless, what about the seismic noise coupling we see in the LVDT readout?
 Shouldn't we design the complementary filter to account for the microseism around $200\,\mathrm{mHz}$?
 
+By the way, the complementary filter in Eqn.~\eqref{eqn:complementary_filter_sekiguchi} is extremely easy to design, as in, we do not need to constrain ourselves to using the $7^\mathrm{th}$-order version in Eqn.~\eqref{eqn:complementary_filter_sekiguchi}.
+Consider the polynomial $(s+\omega_b)^n$, where $\omega_b$ is the blending angular frequency and $n$ is an integer, indicating the order.
+We define the polynomial
+\begin{equation}
+	A(s) = (s+\omega_b)^n = \sum_{i=0}^n a_is^i\,,
+\end{equation}
+where $a_i$ are coefficients of the polynomial $A_n(s)$.
+We can then separate the polynomial into two parts
+\begin{equation}
+	A(s) = A_1(s) + A_2(s)\,,
+\end{equation}
+where
+\begin{equation}
+	A_1(s) = \sum_{i=0}^{n_1} a_is^i\,,
+\end{equation}
+and
+\begin{equation}
+	A_2(s) = \sum_{i=n_1}^n a_is^i\,,
+\end{equation}
+where $n_1$ is the is the order of the $A_1(s)$ polynomial.
+Then, we can have a low-pass filter
+\begin{equation}
+	H_1(s) = \frac{A_1(s)}{A(s)}\,,
+\end{equation}
+which is a $(n-n_1)^\mathrm{th}$-order low-pass filter.
+And the high-pass complementary filter is
+\begin{equation}
+	H_2(s) = \frac{A_2(s)}{A(s)}\,,
+\end{equation}
+which is a $(n-n_1)^\mathrm{th}$-order high-pass filter.
+Eqn.~\eqref{eqn:complementary_filter_sekiguchi} is a complemenary filter with special case $n=7$ and $n_1=3$.
+
 \paragraph{Filter shaping according to sensing noises}
 This brings us to the method used in \cite{low_frequency_optimization_and_performance_of_advanced_virgo_seismic_isolation_system}, filter shaping according to the sensor noise.
 This method was brought to KAGRA by suspension experts in Virgo.
@@ -221,8 +253,10 @@ Let's assume that we designed other parameters (we shall explain this later) exc
 Now, we just need to solve for them algebraically.
 Plugging in $\frac{p_1}{2\pi} = 0.12\,\mathrm{Hz}$, $\frac{p_2}{2\pi} = 0.25\,\mathrm{Hz}$ into $A(s) = (s/p_1+1)^5(s/p_2+1)^3$, we get
 \begin{equation}
-	a_2=31.47148543 \quad\text{and}\quad a_1=8.54131528\,.
+	a_2=31.47\dots \quad\text{and}\quad a_1=8.541\dots\,.
 \end{equation}
+Note that we use $\dots$ to show that we didn't do round-offs.
+
 Expanding $B(s)=\left(\frac{1}{\omega_1^2}s^2+\frac{1}{q_1\omega_1}s+1\right)\left(\frac{1}{\omega_2^2}s^2+\frac{1}{q_2\omega_2}s+1\right)\left(\frac{1}{\omega_3^2}s^2+\frac{1}{q_3\omega_3}s+1\right)$,
 we get
 \begin{equation}
@@ -233,29 +267,29 @@ and
 \begin{equation}
 	b_1 = \frac{1}{q_1\omega_1}+\frac{1}{q_2\omega_3}+\frac{1}{q_3\omega_3}\,.
 \end{equation}
-By equating $b_1=a_1=8.54131528$ and substituting $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $q_1 = 2$, and $q_2 = 1.1$, we get
+By equating $b_1=a_1=8.541\dots$ and substituting $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $q_1 = 2$, and $q_2 = 1.1$, we get
 \begin{equation}
-	\frac{1}{q_3\omega_3} = 7.9005615330066545\,.
+	\frac{1}{q_3\omega_3} = 7.900\dots\,.
 	\label{eqn:1_over_q3_omega3}
 \end{equation}
-Substituting Eqn.~\eqref{eqn:1_over_q3_omega3} $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $q_1 = 2$, $q_2 = 1.1$, and $b_2=a_2=31.47148543$ into \eqref{eqn:b_2_unsolved} and solve for $\omega_3$,
+Substituting Eqn.~\eqref{eqn:1_over_q3_omega3}, $\frac{\omega_1}{2\pi}=\frac{\omega_2}{2\pi} = 0.35\,\mathrm{Hz}$, $q_1 = 2$, $q_2 = 1.1$, and $b_2=a_2=31.47\dots$ into \eqref{eqn:b_2_unsolved} and solve for $\omega_3$,
 we get
 \begin{equation}
 	\begin{split}
-		\frac{1}{\omega_3^2} &= 25.901625838545005\\
-		\frac{\omega_3}{2\pi} &= 0.03127206923221885\,\mathrm{Hz}\,,
+		\frac{1}{\omega_3^2} &= 25.90\dots\\
+		\Rightarrow\frac{\omega_3}{2\pi} &= 0.03127\dots\,\mathrm{Hz}\,,
 	\end{split} 
 \end{equation}
 where we of course reject the negative values corresponds to an unstable zero.
-This matches the initial statement where we say $\frac{\omega_3}{2\pi} = 0.031272069\,\mathrm{Hz}$ is a derived value.
+This matches the initial statement where we say $\frac{\omega_3}{2\pi} = 0.03127\dots\,\mathrm{Hz}$ is a derived value.
 Solving for $q_3$, and not surprisingly, we get
 \begin{equation}
 	\begin{split}
 		q_3 &= \frac{1}{7.900\dots\omega_3}\\
-		&= 0.6441775018514415
+		&= 0.6441\dots
 	\end{split}
 \end{equation}
-which also equals the inital statement where we say $q_3 = 0.64417749$ is a derived value.
+which also equals the inital statement where we say $q_3 = 0.6441\dots$ is a derived value.
 
 Now, let's see how are the other parameters decided.
 First of all, let's remind ourselves what are the requirements of this filter.
@@ -295,15 +329,53 @@ Some displacement sensors are mounted on an non-suspended structure so the they 
 Example sensors are the LVDTs at the preisolator stage and the optical levers measuring the longitudinal motion of the optics.
 These sensors, in addition to the self sensor noise, are coupled to seismic noise, so the sensing noise is sum of the sensor self noise and the seismic noise.
 This is why we set the sensor noise in Eqn.~\eqref{eqn:seismic_noise_coupled_lvdt_noise} as a quadrature sum of LVDT noise and seismic noise.
-Sensors that are coupled to seismic noise cannot be used for active seismic isolation as seismic noise would be re-introduced as control noise.
+Sensors that are coupled to seismic noise cannot be used for active seismic isolation as seismic noise would be re-introduced as control noise, as is indicated by Eqn.~\eqref{eqn:n}.
 To maximize the control potential, on top of sensor blending using complementary filter (Sec.~\eqref{sec:complementary_filter}), we can artificially remove the seismic noise coupling from those seismic noise-coupled sensors by ``sensor correction''.
+And, this should be done before complementary filtering because sensor correction alters the low frequency noise profile of the relative displacement sensor.
 
 Sensor correction is a technique first used by LIGO to reduce seismic noise coupling from the relative displacement sensors \cite{Matichard_2015}.
+Pioneer works in KAGRA was done by Fujii and Miyo on the Type-A suspensions \cite{a_sensor_correction_test_with_ip}.
+They showed the feasibility of sensor correction and inertial damping using LVDTs and seismometers.
+This was comfirmed by measuring the X-arm interferometer length control signal and observed a reduction in the microseism frequency \cite{sensor_correction_performance_check_part1, performance_check_of_sensor_correction_with_xarm_part2}.
+Here, we will briefly describe the sensor correction problem, what was done in \cite{Matichard_2015, a_sensor_correction_test_with_ip} and follow-up works, and then we will show how this it can be improved and how it's related to complementary filters.
+
 \begin{figure}
 	\centering
 	\includegraphics[width=76mm]{figures/sensor_correction}
 	\caption{Sensor correction block diagram.}
 	\label{fig:sensorcorrection}
 \end{figure}
+Fig.~\ref{fig:sensorcorrection} shows the control block diagram of a sensor correction path.
+We have ignored the preisolator displacements and only focus on the noises in the readouts.
+In Fig.~\ref{fig:sensorcorrection}, the top path is the LVDT path, which is coupled to the seismic noise $N_\mathrm{seismic}(s)$ because it's measuring the relative displacement between the suspension and the ground.
+The bottom path is the sensor correction path using the seismometer, which measures the same seismic noise $N_\mathrm{seismic}(s)$ with self noise $N_\mathrm{seismometer}(s)$.
+And here, again, we assume that the LVDTs and the seismometers inter-calibrated so the read exactly same level of seismic noise.
+If not done yet, please refer to Sec.~\ref{sec:inter-calibration} for inter-calibration techniques.
+
+The sensor correction readout noise $N_\mathrm{sc}(s)$ is the sensing noise of the corrected displacement sensor noise.
+It reads
+\begin{equation}
+	N_\mathrm{sc}(s) = N_\mathrm{LVDT}(s) +\left[H_\mathrm{sc}(s)-1\right]N_\mathrm{seismic}(s) + H_\mathrm{sc}(s)N_\mathrm{seismometer}(s)\,,
+	\label{eqn:sensor_correction_noise}
+\end{equation}
+where $N_\mathrm{LVDT}(s)$ is the LVDT self noise, $N_\mathrm{seismic}(s)$ is the seismic noise, $N_\mathrm{seismometer}$ is the seismometer self noise, and $H_\mathrm{sc}(s)$ is the ``sensor correction filter'', which we need to design.
+From Eqn.~\eqref{eqn:sensor_correction_noise}, we see that when the sensor correction filter $H_\mathrm{sc}(s)=1$, the seismic noise $N_\mathrm{seismic}(s)$ noise is nullified.
+However, this introduces the seismometer noise $N_\mathrm{seismometer}(s)$ into the displacement readout, which might not be desirable.
+Therefore, the sensor correction filter $H_\mathrm{sc}(s)$ should be designed strategically so to reduce the seismic noise coupling while not coupling too much seismometer noise\footnote{Doesn't it look like a complementary filter problem?}.
+
+The traditional strategy goes as follows.
+Like accelerometers and geophones, seismometers are inertial sensors that have poor sensitivity at lower frequencies, and so it's self noise is high, and typically higher than the seismic noise itself at lower frequencies, say, below $10\,\mathrm{Hz}$.
+Therefore, these seismometer readouts must be high-passed before using it correct the relative displacement sensor readouts.
+The general idea of the high-pass design goes as follows.
+The feature that dominates the expected RMS of the seismic disturbance is the microseism, which is shown as a pump in the ASD of the seismic noise, as shown in Fig.~\ref{fig:kagra_seismic_noise_90th_percentile} and \ref{fig:sensornoisesforcomplementaryfilter}.
+This pump is not static and it can vary between, say, $0.1$ to $0.5\,\mathrm{Hz}$.
+And so, this would mean that the amplitude of the high-pass filter, i.e the sensor correction filter, $H_\mathrm{sc}$, should be unity above $0.1\,\mathrm{Hz}$, and the phase response should be zero for effective seismic noise cancellation at the microseism frequency region.
+Since the seismometer noise shoots up at lower frequencies, the roll-off of the high-pass filter must also be designed according to the frequency dependency of the seismometer noise.
+This is similar to how one would design a complemnetary filter as discussed in Sec.~\ref{sec:complementary_filter}.
+For example, if the seismometer noise goes as $f^{-3}$ at lower frequencies, then the sensor correction filter should be at least a $3^\mathrm{th}$-order high-pass filter.
+ 
+
+
+
 
 \subsubsection{Examples \label{sec:sensor_fusion_examples}}

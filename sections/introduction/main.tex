@@ -15,20 +15,21 @@ With this repository, we hope to create an open environment for people to exchan
 And, we wish the document to be filled with ideas and methods that we all agree on, so all of us will commit to follow this document when participating commissioning activities.
 
 In this document, we will mainly review some of the techniques and methods involved in suspension commissioning tasks.
-This document is organized as follows, the follow two subsections will be discussing the role of suspension commissioning.
-In particular, we will be talking about what are the expectations of the hardware aspect of the suspensions as we are given the hardware to work with.
+This document is organized as follows, the following two subsections, Sec.\ref{sec:suspension_commissioning_as_a_stepping_stone} and \ref{sec:what_should_interferometer_commissioners_expect?} will be discussing the role of suspension commissioning.
+In particular, we will discussing what are the expectations of the hardware aspect of the suspensions as we are given the hardware to work with.
 We will also be discussing what should interferometer commissioners expect from suspension commissioning.
 In section~\ref{sec:goal}, we will be discussing the goals that we should work towards to achieve. We will be briefly discussing the background behind these goals and requirements.
 These are mainly taken from \cite{Sekiguchi:2016bmv} and we strongly recommend readers to read it for detailed explanation.
 In section~\ref{sec:suspension_commissioning_tasks}, we will be discussing some of the tasks involved in suspension commissioning.
 These tasks are foreseen to be recurring in the future so it's important to document the methods and techniques used to tackle them
-So, section~\ref{sec:suspension_commissioning_baseline_methods} and ~\ref{sec:suspension_commissioning_advanced_methods} will be dedicated to explaining the methods and the ideas behind them.
+So, section~\ref{sec:suspension_commissioning_baseline_methods} and \ref{sec:suspension_commissioning_advanced_methods} will be dedicated to explaining the methods and the ideas behind them.
 The former will include baseline/fallback methods, such as noise modeling, classical loopshaping, and stability criteron, that are decent enough or easy to understand, may be suboptimal but sufficient.
 The latter will include advanced/modern methods, such as optimization methods, $\mathcal{H}_\infty$ methods in control,  and PReQua \cite{prequa}, for readers who seek to optimize suspension performance.
 We will refer to external references, give examples, and even code wherever possible.
+Nevertheless, supporting details are given in the appendices to aid missing derivations in the main sections.
 
 
-\subsection{Suspension commissioning as a stepping stone}
+\subsection{Suspension commissioning as a stepping stone \label{sec:suspension_commissioning_as_a_stepping_stone}}
 Suspension commissioning is about a series of tasks that get us from hardware installation/upgrade to interferometer commissioning.
 In other words, we do whatever is necessary to the suspensions into a state where interferometer commissioners can ``use'' the suspensions to do interferometer alignment and locking, without tweaking the internals of the suspension systems.
 With that said, we should have certain expectation on the initial state of the suspension (as hardware teams handover the suspensions to us), and interferometer commissioning team should expect something from us.
@@ -74,7 +75,7 @@ We are suppose to work with a healthy system so we get maximum potential out of 
 We should ask for a fix, before proceeding.
 If it can't be fixed, we should discuss possible limitations and possible workarounds together.
 
-\subsubsection{What should interferometer commissioners expect?}
+\subsubsection{What should interferometer commissioners expect? \label{sec:what_should_interferometer_commissioners_expect?}}
 We cannot guarantee that the outcome of suspension commission are exactly needed for interferometer commissioning.
 There are few reasons:
 1) There are too many uncertainties.

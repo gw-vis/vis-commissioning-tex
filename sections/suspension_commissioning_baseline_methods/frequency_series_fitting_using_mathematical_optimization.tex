@@ -75,7 +75,6 @@ Minimization gives best-fit parameters
 	\theta_{\hat{N}_\mathrm{model}}^*=\arg\min_{\theta_{\hat{N}_\mathrm{model}}} \hat{J}_\mathrm{noise}\mleft(\theta_{\hat{N}_\mathrm{model}}\mright)\,,
 \end{equation} such that the noise model $\hat{N}_\mathrm{model}\mleft(f;\theta_{\hat{N}_\mathrm{model}}^*\mright)$ becomes a best fit of the noise spectral density $\hat{N}(f)$.
 The minimization can be done using methods that will be discussed in Sec.~\ref{sec:optimization_tips}.
-\subsubsection{Transfer function modeling \label{sec:transfer_function_modeling}}
 
 \subsubsection{Some tips on using optimization \label{sec:optimization_tips}}
 Minimization with measurement data can be done iteratively using optimization algorithms like gradient descent \cite{enwiki:1019572955} (local minimization) or stimulated annealing \cite{enwiki:1017509035} (global minimization).
@@ -174,6 +173,85 @@ We emphasize that all these four configuration may perform equally well if we fu
 There are many optimization tweaks that can improve the fitting performance, but we won't discuss here.
 The results shown in Fig.~\ref{fig:tutorialsnoisespectrummodelingwithoptimization80} only serves as a demonstration of how a careful design of the model and the cost functions can yield better results under the same settings.
 
-\paragraph{Transfer function modeling}
+\subsubsection{Transfer function modeling \label{sec:transfer_function_modeling}}
+In this section, we will discuss how the frequency response of a system can be modeled by a transfer function.
+We will first discuss a heuristic way, where a closed-form of the transfer function can be guessed from the Bode plots of the frequency response.
+Then, we will discuss how we can turn the transfer function fitting into an optimization problem (much like Sec.~\ref{sec:noise_modeling_baseline}).
+The results obtained from the heuristic approach gives a good initial guess for the fitting approach and is the recommended way.
+There exists other exotic methods to get an initial guess but they are rather tedious considering the standard KAGRA workflow.
 
-Pending.
+A generic (stable) transfer function model can be written as
+\begin{equation}
+	G(s) = k\frac{\prod_i^a (s-z_i)}{\prod_i^b (s-p_i)}\frac{\prod_i^c \left(s^2 + \frac{\omega_i}{q_i}s + \omega_j^2\right)}{\prod_i^d \left(s^2+\frac{\Omega_i}{Q_i}s + \Omega_i^2\right)}\,,
+	\label{eqn:generic_tf}
+\end{equation}
+where $s$ is the Laplace variable, $k\in\mathbb{R}$, $z_i\in\mathbb{R}^-$ are the simple zeros, $p_i\in\mathbb{R}^-$ are simple poles, $\omega_i\in\mathbb{R}^+$ $\Omega_i\in\mathbb{R}^+$ are anti-resonance/resonance frequencies  (rad/s) of a pair of complex zeros and a pair of complex poles respectively, $q_i\in[0.5, \infty]$ and $Q_i\in[0.5, \infty]$ their quality factors, and $a$, $b$, $c$, and $d$ are the number of simple zeros, simple poles, pairs of complex zeros and pairs of complex poles respectively.
+We can rewrite Eqn.~\eqref{eqn:generic_tf} into
+\begin{equation}
+	G(s) = k_\mathrm{DC}\frac{\prod_i^a (-s/z_i+1)}{\prod_i^b (-s/p_i+1)}\frac{\prod_i^c \left(s^2/\omega_i^2 + \frac{1}{\omega_i q_i}s + 1\right)}{\prod_i^d \left(s^2/\Omega_i^2+\frac{1}{\Omega_i Q_i}s + 1\right)}\,,
+	\label{eqn:generic_tf_normalized}
+\end{equation}
+where $K_\mathrm{DC}$ is the magnitude of the transfer function at zero frequency, i.e. DC gain.
+This form is particular useful for manual fitting of a transfer function, as we will show later.
+Very often we plot the magnitude response of the transfer function in a log-scale plot.
+In a magnitude plot (Bode magnitude plot), $s$ is evaluated along the imaginary axis $j\omega$, where $j$ is the imaginary number.
+So, taking the logarithm and substituting $s=j\omega$ in Eqn.~\eqref{eqn:generic_tf_normalized} yields
+\begin{equation}
+	\begin{split}
+	\log\left\lvert G(j\omega)\right\rvert = &\log K_\mathrm{DC} + \log \sum_i \left\lvert -j\omega/z_i+1 \right\rvert
+	-\log \sum_i \left\lvert -j\omega/p_i+1\right\rvert\\
+	&+\log \sum_i \left\lvert -\omega^2/\omega_i^2 + \frac{1}{\omega_i q_i} + 1\right\rvert
+	-\log \sum_i \left\lvert -\omega^2/\Omega_i^2 + \frac{1}{\Omega_i Q_i} + 1\right\rvert\,.
+	\end{split}
+	\label{eqn:generic_tf_normalized_magnitude}
+\end{equation}
+Now, let's inspect Eqn.~\eqref{eqn:generic_tf_normalized_magnitude} and see how we can plot the transfer function qualitatively.
+Consider the case at DC, i.e. $\omega=0$, the last 4 terms become $\log 1 = 0$ and the remaining term is $\log K_{\mathrm{DC}}$.
+Therefore, the magnitude plot starts at $K_\mathrm{DC}$.
+Let's assume that $z_i\neq p_i \neq \omega_i \neq \Omega_i$ and consider the case as $\omega$ becomes much greater than one of $\lvert z_i\rvert$, $\lvert p_i\rvert$, $\omega_i$, or $\Omega_i$.
+As $\omega$ approaches much greater than $\lvert z_i\rvert$, $\lvert p_i\rvert$, $\omega_i$, or $\Omega_i$, the higher order terms become dominant.
+Take the case of simple zeros for example, $\log \left\lvert -j\omega/z_i+1\right\rvert\approx \log \lvert -j\omega/z_i \rvert = \log \omega - \log z_i$.
+This corresponds to $+1$ change in slope in the log-log plot of the magnitude response.
+In other words, the frequency dependency of the magnitude response becomes $\omega^{n+1}$ as $\omega$ approaches a $\lvert z_i\rvert$, where $\omega^n$ is the frequency dependency of $\lvert G(j\omega) \rvert$ as $\omega\ll z_i$.
+With the same reasoning, we can conclude that as $\omega$ approaches each simple pole $p_i$, the frequency dependency exponent of the $\lvert G(j\omega)\rvert$ decreases by 1 (because of the minus sign in Eqn.~\eqref{eqn:generic_tf_normalized_magnitude}), which correspond to change of -1 in slope in the log-log plot.
+Similarly, as $\omega$ approaches resonance frequencies $\omega_i$/$\Omega_i$, the exponent increases/decreases by 2.
+For complex pairs of zeros/poles, the magnitude response has an anti-resonance (a notch) at $\omega=\omega_i$ and has a resonance (a peak) at $\omega=\Omega_i$.
+The depth/height of the notch/peak depends on the corresponding Q factors $q_i$ and $Q_i$.
+
+For an example, consider the transfer function
+\begin{equation}
+	G(s) = 2 \frac{(s/1 + 1)}{(s/10 + 1)^2}\frac{(s^2/100^2 + \frac{1}{100\times 30}s + 1)}{(s^2/1000^2 + \frac{1}{1000\times 300}s + 1)}\,.
+	\label{eqn:example_transfer_function}
+\end{equation}
+First of all, the DC gain is at $K_\mathrm{DC}=2$, so the magnitude is 2 at frequency lower than all the zeros/poles and resonances/anti-resonances.
+The second lowest frequency feature is a simple zero at $\omega=1$.
+From there, the slope changes by +1.
+Then, there's a double simple pole at $\omega=10$.
+The slope changes by -2 at $\omega=10$.
+After that, there's an anti-resonance at $\omega=100$ with a Q factor of 30.
+At last, there's a resonance at $\omega=1000$ with a Q factor of 300.
+The slope changes by +2 (anti-resonance) and -2 (resonance).
+All of these features are shown in Fig.~\ref{fig:exampletransferfunctionplot}.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=1\linewidth]{figures/example_transfer_function_plot}
+	\caption{Magnitude response of Eqn.~\eqref{eqn:example_transfer_function}}
+	\label{fig:exampletransferfunctionplot}
+\end{figure}
+
+In summary, simple zeros/poles increase/decrease the slope of the magnitude response, while complex zeros/poles increase/decrease the slope of the magnitude response and making notches/peaks at the resonance frequency.
+
+To manually fit the frequency response of a system, we need to identify the ``features" that are present in the frequency response \footnote{Wouldn't it be nice if we can train a neural network to identify them automatically :)?}.
+These features are the aforementioned ones such as changes in slope, notches, and peaks in the magnitude response.
+For example, without knowing Eqn.~\eqref{eqn:example_transfer_function}, looking at Fig.~\ref{fig:exampletransferfunctionplot}, it's obvious that there's an increase in slope at $\omega=0$, a (double) decrease in slope at $\omega=10$, a notch at $\omega=100$, and a peak at $\omega=1000$.
+From here, we can immediately tell that there're one simple zero, two simple poles, one pair of complex zeros, and one pair of complex poles.
+At the lowest frequency of the plot, the magnitude response is close to plateau at a value of 2, indicating that the DC gain is 2.
+After that, the remaining parameters are the Q factors of the resonances and the anti-resonance.
+There exists ways to obtain the Q factors from the peak and width of the resonances.
+But, we better off manually tweaked the Q factors to match plot as this is something very easy to do.
+
+
+
+Suspensions are multiple pendulums, which can be modeled by damped oscillatory systems.
+Typically, their transfer functions can be modeled by a superposition of complex poles pairs. 
